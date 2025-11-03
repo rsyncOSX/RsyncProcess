@@ -136,6 +136,15 @@ public final class ProcessRsync {
         )
 
         sequenceFileHandlerTask = Task {
+            
+            if self.getrsyncversion {
+                PackageLogger.process.info("ProcessHandlers: sequenceFileHandlerTask getting rsync version")
+            } else if self.handlers.rsyncversion3 {
+                PackageLogger.process.info("ProcessHandlers: sequenceFileHandlerTask ver 3.x rsync")
+            } else if self.handlers.rsyncversion3 == false {
+                PackageLogger.process.info("ProcessHandlers: sequenceFileHandlerTask openrsync")
+            }
+            
             for await _ in sequencefilehandler {
                 if self.getrsyncversion == true {
                     await self.datahandlersyncversion(pipe)
