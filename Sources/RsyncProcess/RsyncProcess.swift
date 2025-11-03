@@ -1,6 +1,26 @@
 import Foundation
 import OSLog
 
+public enum RsyncError: LocalizedError {
+    case executableNotFound
+    case invalidExecutablePath(String)
+    case processLaunchFailed(Error)
+    case outputEncodingFailed
+
+    public var errorDescription: String? {
+        switch self {
+        case .executableNotFound:
+            "Rsync executable not found. Please verify the rsync path."
+        case let .invalidExecutablePath(path):
+            "Invalid rsync executable path: \(path)"
+        case let .processLaunchFailed(error):
+            "Failed to launch rsync process: \(error.localizedDescription)"
+        case .outputEncodingFailed:
+            "Failed to decode rsync output as UTF-8"
+        }
+    }
+}
+
 /// Handlers for process execution callbacks
 public struct ProcessHandlers {
     /// Called when process terminates with output and hiddenID
@@ -17,6 +37,8 @@ public struct ProcessHandlers {
     public var propogateerror: (Error) -> Void
     /// Flag to enable/disable error checking in rsync output
     public var checkforerrorinrsyncoutput: Bool
+    /// Flag for version 3.x of rsync or not
+    public var rsyncversion3: Bool = false
     /// Initialize ProcessHandlers with all required closures
     public init(
         processtermination: @escaping ([String]?, Int?) -> Void,
@@ -25,7 +47,8 @@ public struct ProcessHandlers {
         checklineforerror: @escaping (String) throws -> Void,
         updateprocess: @escaping (Process?) -> Void,
         propogateerror: @escaping (Error) -> Void,
-        checkforerrorinrsyncoutput: Bool
+        checkforerrorinrsyncoutput: Bool,
+        rsyncversion3: Bool
     ) {
         self.processtermination = processtermination
         self.filehandler = filehandler
@@ -34,6 +57,7 @@ public struct ProcessHandlers {
         self.updateprocess = updateprocess
         self.propogateerror = propogateerror
         self.checkforerrorinrsyncoutput = checkforerrorinrsyncoutput
+        self.rsyncversion3 = rsyncversion3
     }
 }
 
@@ -72,13 +96,19 @@ public final class ProcessRsync {
     // Summary starter of rsync
     private static let summaryStartMarker = "Number of files"
 
-    public func executeProcess() {
-        // Process
+    public func executeProcess() throws {
+        guard let executablePath = handlers.rsyncpath() else {
+            throw RsyncError.executableNotFound
+        }
+
+        guard let executableURL = URL(string: "file://\(executablePath)") else {
+            throw RsyncError.invalidExecutablePath(executablePath)
+        }
+
         let task = Process()
-        // Getting version of rsync
-        task.executableURL = URL(fileURLWithPath: handlers.rsyncpath() ?? "")
-        guard task.executableURL != nil else { return }
+        task.executableURL = executableURL
         task.arguments = arguments
+
         // If there are any Environmentvariables like
         // SSH_AUTH_SOCK": "/Users/user/.gnupg/S.gpg-agent.ssh"
         // MUST FIX
@@ -87,6 +117,7 @@ public final class ProcessRsync {
              task.environment = environment.environment
          }
           */
+        
         // Pipe for reading output from Process
         let pipe = Pipe()
         task.standardOutput = pipe
@@ -109,7 +140,11 @@ public final class ProcessRsync {
                 if self.getrsyncversion == true {
                     await self.datahandlersyncversion(pipe)
                 } else {
-                    await self.datahandlever3x(pipe)
+                    if self.handlers.rsyncversion3 == true {
+                        await self.datahandlever3x(pipe)
+                    } else {
+                        await self.datahandleopenrsync(pipe)
+                    }
                 }
             }
         }
@@ -159,8 +194,7 @@ public final class ProcessRsync {
     public init(arguments: [String]?,
                 hiddenID: Int,
                 handlers: ProcessHandlers,
-                usefilehandler: Bool)
-    {
+                usefilehandler: Bool) {
         self.arguments = arguments
         self.hiddenID = hiddenID
         self.handlers = handlers
@@ -176,8 +210,7 @@ public final class ProcessRsync {
 
     public convenience init(arguments: [String]?,
                             handlers: ProcessHandlers,
-                            filehandler: Bool)
-    {
+                            filehandler: Bool) {
         self.init(arguments: arguments,
                   hiddenID: -1,
                   handlers: handlers,
@@ -202,7 +235,7 @@ extension ProcessRsync {
             }
         }
     }
-    
+
     func datahandleopenrsync(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
@@ -211,8 +244,7 @@ extension ProcessRsync {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if self.handlers.checkforerrorinrsyncoutput,
-                       self.errordiscovered == false
-                    {
+                       self.errordiscovered == false {
                         do {
                             try self.handlers.checklineforerror(line)
                         } catch let e {
@@ -246,8 +278,7 @@ extension ProcessRsync {
                         }
                     }
                     if self.handlers.checkforerrorinrsyncoutput,
-                       self.errordiscovered == false
-                    {
+                       self.errordiscovered == false {
                         do {
                             try self.handlers.checklineforerror(line)
                         } catch let e {
@@ -295,12 +326,7 @@ extension ProcessRsync {
 // Sources/RsyncProcess/Internal/PackageLogger.swift
 // ===================================
 
-import OSLog
-
-/// Internal logger for the RsyncProcess package
-/// Note: If your main project already has Logger.process defined,
-/// you can remove this file and the package will use your existing extension
-internal enum PackageLogger {
+enum PackageLogger {
     static let process = Logger(subsystem: "com.rsyncprocess", category: "process")
 }
 
@@ -308,13 +334,8 @@ internal enum PackageLogger {
 // Sources/RsyncProcess/Internal/ThreadUtils.swift
 // ===================================
 
-import Foundation
-
-/// Internal thread utilities for the RsyncProcess package
-/// Note: If your main project already has Thread.isMain defined,
-/// you can remove this file and the package will use your existing extension
-internal enum ThreadUtils {
+enum ThreadUtils {
     static var isMain: Bool {
-        return Thread.isMainThread
+        Thread.isMainThread
     }
 }
