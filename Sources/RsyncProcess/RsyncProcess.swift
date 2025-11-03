@@ -183,12 +183,12 @@ public final class ProcessRsyncVer3x {
 
     public convenience init(arguments: [String]?,
                             handlers: ProcessHandlers,
-                            filhandler: Bool)
+                            filehandler: Bool)
     {
         self.init(arguments: arguments,
                   hiddenID: -1,
                   handlers: handlers,
-                  usefilehandler: filhandler)
+                  usefilehandler: filehandler)
     }
 
     deinit {
