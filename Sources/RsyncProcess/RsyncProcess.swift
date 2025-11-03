@@ -5,25 +5,18 @@ import OSLog
 public struct ProcessHandlers {
     /// Called when process terminates with output and hiddenID
     public var processtermination: ([String]?, Int?) -> Void
-
     /// Called during file processing with count
     public var filehandler: (Int) -> Void
-
     /// Returns the path to rsync executable
     public var rsyncpath: () -> String?
-
     /// Checks a line for errors and throws if found
     public var checklineforerror: (String) throws -> Void
-
     /// Updates the current process reference
     public var updateprocess: (Process?) -> Void
-
     /// Propagates errors to error handler
     public var propogateerror: (Error) -> Void
-
     /// Flag to enable/disable error checking in rsync output
     public var checkforerrorinrsyncoutput: Bool
-
     /// Initialize ProcessHandlers with all required closures
     public init(
         processtermination: @escaping ([String]?, Int?) -> Void,
@@ -49,7 +42,7 @@ public struct ProcessHandlers {
 // ===================================
 
 @MainActor
-public final class ProcessRsyncVer3x {
+public final class ProcessRsync {
     // Process handlers
     let handlers: ProcessHandlers
     // Arguments to command
@@ -116,7 +109,7 @@ public final class ProcessRsyncVer3x {
                 if self.getrsyncversion == true {
                     await self.datahandlersyncversion(pipe)
                 } else {
-                    await self.datahandle(pipe)
+                    await self.datahandlever3x(pipe)
                 }
             }
         }
@@ -196,7 +189,7 @@ public final class ProcessRsyncVer3x {
     }
 }
 
-extension ProcessRsyncVer3x {
+extension ProcessRsync {
     func datahandlersyncversion(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
@@ -209,8 +202,36 @@ extension ProcessRsyncVer3x {
             }
         }
     }
+    
+    func datahandleopenrsync(_ pipe: Pipe) async {
+        let outHandle = pipe.fileHandleForReading
+        let data = outHandle.availableData
+        if data.count > 0 {
+            if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
+                str.enumerateLines { line, _ in
+                    self.output.append(line)
+                    if self.handlers.checkforerrorinrsyncoutput,
+                       self.errordiscovered == false
+                    {
+                        do {
+                            try self.handlers.checklineforerror(line)
+                        } catch let e {
+                            self.errordiscovered = true
+                            let error = e
+                            self.handlers.propogateerror(error)
+                        }
+                    }
+                }
+                // Send message about files
+                if usefilehandler {
+                    handlers.filehandler(output.count)
+                }
+            }
+            outHandle.waitForDataInBackgroundAndNotify()
+        }
+    }
 
-    func datahandle(_ pipe: Pipe) async {
+    func datahandlever3x(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
         if data.count > 0 {
@@ -219,7 +240,7 @@ extension ProcessRsyncVer3x {
                     self.output.append(line)
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
-                        if line.contains(ProcessRsyncVer3x.summaryStartMarker) {
+                        if line.contains(ProcessRsync.summaryStartMarker) {
                             self.beginningofsummarizedstatus = true
                             PackageLogger.process.info("ProcessHandlers: datahandle() beginning of status reports discovered")
                         }
