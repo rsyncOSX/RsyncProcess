@@ -11,14 +11,17 @@ let package = Package(
     products: [
         .library(
             name: "RsyncProcess",
-            targets: ["RsyncProcess"]),
+            targets: ["RsyncProcess"]
+        )
     ],
     targets: [
         .target(
             name: "RsyncProcess",
-            dependencies: []),
+            dependencies: []
+        ),
         .testTarget(
             name: "RsyncProcessTests",
-            dependencies: ["RsyncProcess"]),
+            dependencies: ["RsyncProcess"]
+        )
     ]
 )
