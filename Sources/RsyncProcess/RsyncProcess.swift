@@ -134,8 +134,6 @@ public final class ProcessRsyncVer3x {
 
     deinit {
         PackageLogger.process.info("ProcessRsyncVer3x: DEINIT")
-        fileHandlerTask?.cancel()
-        terminationTask?.cancel()
     }
 
     // MARK: - Public Methods
@@ -235,9 +233,7 @@ public final class ProcessRsyncVer3x {
         // Cancel Tasks
         sequenceFileHandlerTask?.cancel()
         sequenceTerminationTask?.cancel()
-        await sequenceFileHandlerTask?.value
-        await sequenceTerminationTask?.value
-
+        
         PackageLogger.process.info("ProcessHandlers: process = nil and termination discovered \(ThreadUtils.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
     }
 
