@@ -324,9 +324,8 @@ extension ProcessRsync {
         // Cancel Tasks
         sequenceFileHandlerTask?.cancel()
         sequenceTerminationTask?.cancel()
-        await sequenceFileHandlerTask?.value
-        await sequenceTerminationTask?.value
-
+        // await sequenceFileHandlerTask?.value
+        // await sequenceTerminationTask?.value
         PackageLogger.process.info("ProcessHandlers: process = nil and termination discovered \(ThreadUtils.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
     }
 }
