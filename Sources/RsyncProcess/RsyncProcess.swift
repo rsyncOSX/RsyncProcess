@@ -35,6 +35,8 @@ public struct ProcessHandlers {
     public var updateprocess: (Process?) -> Void
     /// Propagates errors to error handler
     public var propogateerror: (Error) -> Void
+    // Async logger
+    public var logger: (String, [String]) async -> Void
     /// Flag to enable/disable error checking in rsync output
     public var checkforerrorinrsyncoutput: Bool
     /// Flag for version 3.x of rsync or not
@@ -47,6 +49,7 @@ public struct ProcessHandlers {
         checklineforerror: @escaping (String) throws -> Void,
         updateprocess: @escaping (Process?) -> Void,
         propogateerror: @escaping (Error) -> Void,
+        logger: @escaping (String, [String]) async -> Void,
         checkforerrorinrsyncoutput: Bool,
         rsyncversion3: Bool
     ) {
@@ -56,6 +59,7 @@ public struct ProcessHandlers {
         self.checklineforerror = checklineforerror
         self.updateprocess = updateprocess
         self.propogateerror = propogateerror
+        self.logger = logger
         self.checkforerrorinrsyncoutput = checkforerrorinrsyncoutput
         self.rsyncversion3 = rsyncversion3
     }
@@ -311,15 +315,11 @@ extension ProcessRsync {
     func termination() async {
         handlers.processtermination(output, hiddenID)
         // Log error in rsync output to file
-        // MUST FIX
-        /*
-         if errordiscovered, let config {
+         if errordiscovered {
              Task {
-                 await ActorLogToFile(command: config.backupID,
-                                      stringoutputfromrsync: output)
+                await handlers.logger(String(hiddenID), output)
              }
          }
-          */
         // Set current process to nil
         handlers.updateprocess(nil)
         // Cancel Tasks
