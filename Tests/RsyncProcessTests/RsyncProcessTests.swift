@@ -2,6 +2,28 @@
 import Testing
 import Foundation
 
+actor ActorToFile {
+    private func logging(command _: String, stringoutput: [String]) async {
+        var logfile: String?
+
+        if logfile == nil {
+            logfile = stringoutput.joined(separator: "\n")
+        } else {
+            logfile! += stringoutput.joined(separator: "\n")
+        }
+        if let logfile {
+            print(logfile)
+        }
+    }
+
+    @discardableResult
+    init(_ command: String, _ stringoutput: [String]?) async {
+        if let stringoutput {
+            await logging(command: command, stringoutput: stringoutput)
+        }
+    }
+}
+
 // The TestState actor manages its own state and does not need a global actor.
 actor TestState {
     var capturedError: Error?
@@ -53,6 +75,7 @@ struct RsyncProcessTests {
             checklineforerror: { _ in },
             updateprocess: { _ in },
             propogateerror: { error in Task { await state.errorPropagated(error: error) } },
+            logger: <#(String, [String]) async -> Void#>,
             checkforerrorinrsyncoutput: true,
             rsyncversion3: true
         )
@@ -85,6 +108,9 @@ struct RsyncProcessTests {
             checklineforerror: { _ in },
             updateprocess: { _ in },
             propogateerror: { error in Task { await state.errorPropagated(error: error) } },
+            logger: { command, output in
+                _  = await ActorToFile(command, output)
+            },
             checkforerrorinrsyncoutput: true,
             rsyncversion3: true
         )
@@ -116,6 +142,9 @@ struct RsyncProcessTests {
             checklineforerror: { _ in },
             updateprocess: { _ in },
             propogateerror: { error in Task { await state.errorPropagated(error: error) } },
+            logger: { command, output in
+                _  = await ActorToFile(command, output)
+            },
             checkforerrorinrsyncoutput: true,
             rsyncversion3: true
         )
@@ -148,6 +177,9 @@ struct RsyncProcessTests {
             },
             updateprocess: { _ in },
             propogateerror: { error in Task { await state.errorPropagated(error: error) } },
+            logger: { command, output in
+                _  = await ActorToFile(command, output)
+            },
             checkforerrorinrsyncoutput: true,
             rsyncversion3: true
         )
