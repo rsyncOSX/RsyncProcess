@@ -101,7 +101,8 @@ public final class ProcessRsync {
             throw RsyncError.executableNotFound
         }
 
-        guard let executableURL = URL(string: "file://\(executablePath)") else {
+        let executableURL = URL(fileURLWithPath: executablePath)
+        guard FileManager.default.isExecutableFile(atPath: executableURL.path) else {
             throw RsyncError.invalidExecutablePath(executablePath)
         }
 
