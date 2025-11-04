@@ -72,7 +72,7 @@ public final class ProcessRsync {
     // Arguments to command
     var arguments: [String]?
     // Output
-    var output = [String]()
+    public private(set) var output = [String]()
     // Use filehandler
     var usefilehandler: Bool = false
     // Check for error
