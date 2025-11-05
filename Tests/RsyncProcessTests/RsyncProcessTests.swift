@@ -75,9 +75,12 @@ struct RsyncProcessTests {
             checklineforerror: { _ in },
             updateprocess: { _ in },
             propogateerror: { error in Task { await state.errorPropagated(error: error) } },
-            logger: <#(String, [String]) async -> Void#>,
+            logger: { command, output in
+                _ = await ActorToFile(command, output)
+            },
             checkforerrorinrsyncoutput: true,
-            rsyncversion3: true
+            rsyncversion3: true,
+            environment: nil
         )
         
         // Pass arguments during initialization and call executeProcess() without arguments
@@ -112,7 +115,8 @@ struct RsyncProcessTests {
                 _  = await ActorToFile(command, output)
             },
             checkforerrorinrsyncoutput: true,
-            rsyncversion3: true
+            rsyncversion3: true,
+            environment: nil
         )
         
         let process = ProcessRsync(arguments: [], handlers: handlers, filehandler: false)
@@ -146,7 +150,8 @@ struct RsyncProcessTests {
                 _  = await ActorToFile(command, output)
             },
             checkforerrorinrsyncoutput: true,
-            rsyncversion3: true
+            rsyncversion3: true,
+            environment: nil
         )
 
         let process = ProcessRsync(arguments: [], handlers: handlers, filehandler: false)
@@ -181,7 +186,8 @@ struct RsyncProcessTests {
                 _  = await ActorToFile(command, output)
             },
             checkforerrorinrsyncoutput: true,
-            rsyncversion3: true
+            rsyncversion3: true,
+            environment: nil
         )
         
         let process = ProcessRsync(arguments: ["An error occurred"], handlers: handlers, filehandler: false)

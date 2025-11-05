@@ -41,6 +41,8 @@ public struct ProcessHandlers {
     public var checkforerrorinrsyncoutput: Bool
     /// Flag for version 3.x of rsync or not
     public var rsyncversion3: Bool = false
+    /// Environment data for rsync
+    public var environment: [String: String]?
     /// Initialize ProcessHandlers with all required closures
     public init(
         processtermination: @escaping ([String]?, Int?) -> Void,
@@ -51,7 +53,8 @@ public struct ProcessHandlers {
         propogateerror: @escaping (Error) -> Void,
         logger: @escaping (String, [String]) async -> Void,
         checkforerrorinrsyncoutput: Bool,
-        rsyncversion3: Bool
+        rsyncversion3: Bool,
+        environment: [String: String]?
     ) {
         self.processtermination = processtermination
         self.filehandler = filehandler
@@ -62,6 +65,7 @@ public struct ProcessHandlers {
         self.logger = logger
         self.checkforerrorinrsyncoutput = checkforerrorinrsyncoutput
         self.rsyncversion3 = rsyncversion3
+        self.environment = environment
     }
 }
 
@@ -116,13 +120,9 @@ public final class ProcessRsync {
 
         // If there are any Environmentvariables like
         // SSH_AUTH_SOCK": "/Users/user/.gnupg/S.gpg-agent.ssh"
-        // MUST FIX
-        /*
-         if let environment = MyEnvironment() {
-             task.environment = environment.environment
+         if let environment = handlers.environment {
+             task.environment = environment
          }
-          */
-        
         // Pipe for reading output from Process
         let pipe = Pipe()
         task.standardOutput = pipe
