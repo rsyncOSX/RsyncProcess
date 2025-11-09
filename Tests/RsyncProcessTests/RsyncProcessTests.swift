@@ -56,7 +56,7 @@ struct RsyncProcessTests {
     func createMockHandlers(
         rsyncPath: String? = "/usr/bin/rsync",
         checkForError: Bool = false,
-        rsyncVersion3: Bool = true,
+        rsyncVersion3: Bool = false,
         shouldThrowError: Bool = false,
         state: TestState
     ) -> ProcessHandlers {
@@ -90,7 +90,7 @@ struct RsyncProcessTests {
     }
     // START
     
-    @Test("Full process lifecycle with rsync", .enabled(if: FileManager.default.fileExists(atPath: "/usr/bin/rsync")))
+    @Test("Full process lifecycle with rsync")
         func fullProcessLifecycle() async throws {
             let state = TestState()
             let handlers = createMockHandlers(state: state)
@@ -111,7 +111,7 @@ struct RsyncProcessTests {
             #expect(state.mockOutput != nil)
         }
         
-        @Test("Process termination with pending output data", .enabled(if: FileManager.default.fileExists(atPath: "/usr/bin/rsync")))
+        @Test("Process termination with pending output data")
         func processTerminationWithPendingData() async throws {
             let state = TestState()
             let handlers = createMockHandlers(state: state)
@@ -171,7 +171,7 @@ struct RsyncProcessTests {
             #expect(state.mockHiddenID == hiddenID)
         }
         
-        @Test("Process termination called before all data is handled", .enabled(if: FileManager.default.fileExists(atPath: "/usr/bin/rsync")))
+        @Test("Process termination called before all data is handled")
         func processTerminationBeforeAllDataHandled() async throws {
             let state = TestState()
             let hiddenID = 999
@@ -202,7 +202,7 @@ struct RsyncProcessTests {
                     _ = await ActorToFile(command, output)
                 },
                 checkforerrorinrsyncoutput: false,
-                rsyncversion3: true,
+                rsyncversion3: false,
                 environment: nil
             )
             
