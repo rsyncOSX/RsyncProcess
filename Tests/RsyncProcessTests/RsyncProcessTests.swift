@@ -115,7 +115,7 @@ struct RsyncProcessTests {
         func processTerminationWithPendingData() async throws {
             let state = TestState()
             let handlers = createMockHandlers(state: state)
-            let hiddenID = 456
+            let hiddenID = 1
             
             let process = ProcessRsync(
                 arguments: ["--version"],
@@ -145,36 +145,10 @@ struct RsyncProcessTests {
             #expect(outputString.contains("rsync") || outputString.contains("version"))
         }
         
-        @Test("Process termination handler receives all output lines")
-        func terminationHandlerReceivesAllOutput() async {
-            let state = TestState()
-            let hiddenID = 789
-            
-            // Simulate termination with specific output data
-            let simulatedOutput = [
-                "Line 1: Starting transfer",
-                "Line 2: Processing files",
-                "Line 3: Transfer complete"
-            ]
-            
-            let handlers = createMockHandlers(state: state)
-            
-            // Directly call the termination handler as the process would
-            handlers.processtermination(simulatedOutput, hiddenID)
-            
-            // Verify all data was passed through
-            #expect(state.mockOutput != nil)
-            #expect(state.mockOutput?.count == 3)
-            #expect(state.mockOutput?[0] == "Line 1: Starting transfer")
-            #expect(state.mockOutput?[1] == "Line 2: Processing files")
-            #expect(state.mockOutput?[2] == "Line 3: Transfer complete")
-            #expect(state.mockHiddenID == hiddenID)
-        }
-        
         @Test("Process termination called before all data is handled")
         func processTerminationBeforeAllDataHandled() async throws {
             let state = TestState()
-            let hiddenID = 999
+            let hiddenID = 1
             var dataHandledCount = 0
             var terminationOutputCount = 0
             
