@@ -49,14 +49,20 @@ struct RsyncProcessTests {
             loggedID = nil
             loggedOutput = nil
         }
+        
+        func printline(_ line: String) -> String {
+            print(line)
+            return line
+        }
     }
     
     // MARK: - Helper Methods
     
     func createMockHandlers(
-        rsyncPath: String? = "/usr/bin/rsync",
+        // rsyncPath: String? = "/usr/bin/rsync",
+        rsyncPath: String? = "/opt/homebrew/bin/rsync",
         checkForError: Bool = false,
-        rsyncVersion3: Bool = false,
+        rsyncVersion3: Bool = true,
         shouldThrowError: Bool = false,
         state: TestState
     ) -> ProcessHandlers {
@@ -114,7 +120,8 @@ struct RsyncProcessTests {
         @Test("Process termination with pending output data")
         func processTerminationWithPendingData() async throws {
             let state = TestState()
-            let handlers = createMockHandlers(state: state)
+            var handlers = createMockHandlers(state: state)
+            handlers.printlines = state.printline(_:)
             let hiddenID = 1
             
             let process = RsyncProcess(

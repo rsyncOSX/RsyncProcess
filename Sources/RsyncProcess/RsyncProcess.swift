@@ -43,6 +43,8 @@ public struct ProcessHandlers {
     public var rsyncversion3: Bool = false
     /// Environment data for rsync
     public var environment: [String: String]?
+    /// Print lines i datahandler
+    public var printlines: ((String) -> String)?
     /// Initialize ProcessHandlers with all required closures
     public init(
         processtermination: @escaping ([String]?, Int?) -> Void,
@@ -54,7 +56,8 @@ public struct ProcessHandlers {
         logger: @escaping (String, [String]) async -> Void,
         checkforerrorinrsyncoutput: Bool,
         rsyncversion3: Bool,
-        environment: [String: String]?
+        environment: [String: String]?,
+        printlines: ((String) -> String)? = nil
     ) {
         self.processtermination = processtermination
         self.filehandler = filehandler
@@ -66,6 +69,7 @@ public struct ProcessHandlers {
         self.checkforerrorinrsyncoutput = checkforerrorinrsyncoutput
         self.rsyncversion3 = rsyncversion3
         self.environment = environment
+        self.printlines = printlines
     }
 }
 
@@ -244,6 +248,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        _ = printlines(line)
+                    }
                 }
                 outHandle.waitForDataInBackgroundAndNotify()
             }
@@ -257,6 +264,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        _ = printlines(line)
+                    }
                     if self.handlers.checkforerrorinrsyncoutput,
                        self.errordiscovered == false {
                         do {
@@ -284,6 +294,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        _ = printlines(line)
+                    }
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
