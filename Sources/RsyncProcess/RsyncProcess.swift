@@ -264,6 +264,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        printlines(line)
+                    }
                     if self.handlers.checkforerrorinrsyncoutput,
                        self.errordiscovered == false {
                         do {
@@ -291,6 +294,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        printlines(line)
+                    }
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
