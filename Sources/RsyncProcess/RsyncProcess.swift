@@ -76,7 +76,7 @@ public struct ProcessHandlers {
 @MainActor
 public final class RsyncProcess {
     // Process handlers
-    let handlers: ProcessHandlers
+    public private(set) var handlers: ProcessHandlers
     // Arguments to command
     var arguments: [String]?
     // Output
