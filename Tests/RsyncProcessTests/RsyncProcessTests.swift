@@ -94,7 +94,7 @@ struct RsyncProcessTests {
         func fullProcessLifecycle() async throws {
             let state = TestState()
             let handlers = createMockHandlers(state: state)
-            let process = ProcessRsync(
+            let process = RsyncProcess(
                 arguments: ["--version"],
                 hiddenID: 123,
                 handlers: handlers,
@@ -117,7 +117,7 @@ struct RsyncProcessTests {
             let handlers = createMockHandlers(state: state)
             let hiddenID = 1
             
-            let process = ProcessRsync(
+            let process = RsyncProcess(
                 arguments: ["--version"],
                 hiddenID: hiddenID,
                 handlers: handlers,
@@ -182,7 +182,7 @@ struct RsyncProcessTests {
             
             // Use a command that generates significant output quickly
             // This increases the chance of termination happening while data is still in the pipe
-            let process = ProcessRsync(
+            let process = RsyncProcess(
                 arguments: ["--help"],  // Generates multi-line output
                 hiddenID: hiddenID,
                 handlers: handlers,

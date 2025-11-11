@@ -74,7 +74,7 @@ public struct ProcessHandlers {
 // ===================================
 
 @MainActor
-public final class ProcessRsync {
+public final class RsyncProcess {
     // Process handlers
     let handlers: ProcessHandlers
     // Arguments to command
@@ -236,7 +236,7 @@ public final class ProcessRsync {
     }
 }
 
-extension ProcessRsync {
+extension RsyncProcess {
     func datahandlersyncversion(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
@@ -286,7 +286,7 @@ extension ProcessRsync {
                     self.output.append(line)
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
-                        if line.contains(ProcessRsync.summaryStartMarker) {
+                        if line.contains(RsyncProcess.summaryStartMarker) {
                             self.beginningofsummarizedstatus = true
                             PackageLogger.process.info("ProcessHandlers: datahandle() beginning of status reports discovered")
                         }
