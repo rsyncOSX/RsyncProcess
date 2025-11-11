@@ -44,7 +44,7 @@ public struct ProcessHandlers {
     /// Environment data for rsync
     public var environment: [String: String]?
     /// Print lines i datahandler
-    public var printlines: ((String) -> String)?
+    public var printlines: ((String) -> Void)?
     /// Initialize ProcessHandlers with all required closures
     public init(
         processtermination: @escaping ([String]?, Int?) -> Void,
@@ -57,7 +57,7 @@ public struct ProcessHandlers {
         checkforerrorinrsyncoutput: Bool,
         rsyncversion3: Bool,
         environment: [String: String]?,
-        printlines: ((String) -> String)? = nil
+        printlines: ((String) -> Void)? = nil
     ) {
         self.processtermination = processtermination
         self.filehandler = filehandler
@@ -249,7 +249,7 @@ extension RsyncProcess {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if let printlines = self.handlers.printlines  {
-                        _ = printlines(line)
+                        printlines(line)
                     }
                 }
                 outHandle.waitForDataInBackgroundAndNotify()
@@ -264,9 +264,6 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if let printlines = self.handlers.printlines  {
-                        _ = printlines(line)
-                    }
                     if self.handlers.checkforerrorinrsyncoutput,
                        self.errordiscovered == false {
                         do {
@@ -294,9 +291,6 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if let printlines = self.handlers.printlines  {
-                        _ = printlines(line)
-                    }
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {

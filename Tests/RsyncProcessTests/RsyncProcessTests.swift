@@ -50,9 +50,8 @@ struct RsyncProcessTests {
             loggedOutput = nil
         }
         
-        func printline(_ line: String) -> String {
+        func printline(_ line: String) {
             print(line)
-            return line
         }
     }
     
