@@ -249,6 +249,7 @@ extension RsyncProcess {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if let printlines = self.handlers.printlines  {
+                        PackageLogger.process.info("ProcessHandlers: printlines - NOT YET IMPLEMENTED")
                         printlines(line)
                     }
                 }
@@ -264,7 +265,8 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if let printlines = self.handlers.printlines  {
+                    if let printlines = self.handlers.printlines {
+                        PackageLogger.process.info("ProcessHandlers: printlines - NOT YET IMPLEMENTED")
                         printlines(line)
                     }
                     if self.handlers.checkforerrorinrsyncoutput,
@@ -295,6 +297,7 @@ extension RsyncProcess {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if let printlines = self.handlers.printlines  {
+                        PackageLogger.process.info("ProcessHandlers: printlines - NOT YET IMPLEMENTED")
                         printlines(line)
                     }
                     // realrun == true if arguments does not contain --dry-run parameter
