@@ -111,13 +111,21 @@ public actor RsyncOutputCapture {
 
 extension RsyncOutputCapture {
     /// Create a printlines closure for ProcessHandlers
-    public nonisolated func makePrintLinesClosure() -> (String) -> Void {
-        return { line in
-            Task {
-                await self.captureLine(line)
+        /// The closure updates the @Observable PrintLines model on the MainActor
+        /// and also forwards the line into the actor's captureLine(...) as before.
+        public nonisolated func makePrintLinesClosure() -> (String) -> Void {
+            return { line in
+                // Update UI-observable model on MainActor (non-blocking)
+                Task { @MainActor in
+                    PrintLines.shared.printlines(line)
+                }
+
+                // Also keep capturing in the actor's internal storage (async)
+                Task {
+                    await self.captureLine(line)
+                }
             }
         }
-    }
 }
 
 // MARK: - Usage Example

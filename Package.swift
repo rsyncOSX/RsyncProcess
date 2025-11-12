@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "RsyncProcess",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v14)
     ],
     products: [
         .library(
