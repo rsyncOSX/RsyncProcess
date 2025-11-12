@@ -21,58 +21,6 @@ public enum RsyncError: LocalizedError {
     }
 }
 
-/// Handlers for process execution callbacks
-public struct ProcessHandlers {
-    /// Called when process terminates with output and hiddenID
-    public var processtermination: ([String]?, Int?) -> Void
-    /// Called during file processing with count
-    public var filehandler: (Int) -> Void
-    /// Returns the path to rsync executable
-    public var rsyncpath: () -> String?
-    /// Checks a line for errors and throws if found
-    public var checklineforerror: (String) throws -> Void
-    /// Updates the current process reference
-    public var updateprocess: (Process?) -> Void
-    /// Propagates errors to error handler
-    public var propogateerror: (Error) -> Void
-    // Async logger
-    public var logger: (String, [String]) async -> Void
-    /// Flag to enable/disable error checking in rsync output
-    public var checkforerrorinrsyncoutput: Bool
-    /// Flag for version 3.x of rsync or not
-    public var rsyncversion3: Bool = false
-    /// Environment data for rsync
-    public var environment: [String: String]?
-    /// Print lines i datahandler
-    public var printlines: ((String) -> Void)?
-    /// Initialize ProcessHandlers with all required closures
-    public init(
-        processtermination: @escaping ([String]?, Int?) -> Void,
-        filehandler: @escaping (Int) -> Void,
-        rsyncpath: @escaping () -> String?,
-        checklineforerror: @escaping (String) throws -> Void,
-        updateprocess: @escaping (Process?) -> Void,
-        propogateerror: @escaping (Error) -> Void,
-        logger: @escaping (String, [String]) async -> Void,
-        checkforerrorinrsyncoutput: Bool,
-        rsyncversion3: Bool,
-        environment: [String: String]?,
-        printlines: ((String) -> Void)? = nil
-    ) {
-        self.processtermination = processtermination
-        self.filehandler = filehandler
-        self.rsyncpath = rsyncpath
-        self.checklineforerror = checklineforerror
-        self.updateprocess = updateprocess
-        self.propogateerror = propogateerror
-        self.logger = logger
-        self.checkforerrorinrsyncoutput = checkforerrorinrsyncoutput
-        self.rsyncversion3 = rsyncversion3
-        self.environment = environment
-        self.printlines = printlines
-    }
-}
-
 // ===================================
 // Sources/RsyncProcess/ProcessRsyncVer3x.swift
 // ===================================
@@ -264,6 +212,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        printlines(line)
+                    }
                     if self.handlers.checkforerrorinrsyncoutput,
                        self.errordiscovered == false {
                         do {
@@ -291,6 +242,9 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
+                    if let printlines = self.handlers.printlines  {
+                        printlines(line)
+                    }
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
@@ -335,23 +289,5 @@ extension RsyncProcess {
         // await sequenceFileHandlerTask?.value
         // await sequenceTerminationTask?.value
         PackageLogger.process.info("ProcessHandlers: process = nil and termination discovered \(ThreadUtils.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
-    }
-}
-
-// ===================================
-// Sources/RsyncProcess/Internal/PackageLogger.swift
-// ===================================
-
-enum PackageLogger {
-    static let process = Logger(subsystem: "com.rsyncprocess", category: "process")
-}
-
-// ===================================
-// Sources/RsyncProcess/Internal/ThreadUtils.swift
-// ===================================
-
-enum ThreadUtils {
-    static var isMain: Bool {
-        Thread.isMainThread
     }
 }
