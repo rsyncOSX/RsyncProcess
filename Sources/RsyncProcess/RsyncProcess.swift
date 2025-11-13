@@ -58,7 +58,7 @@ public final class RsyncProcess {
     // Privat property to mark if real-time output is enabled or not
     private var realtimeoutputenabled: Bool = false
 
-    public func executeProcess() async throws {
+    public func executeProcess() throws {
         guard let executablePath = handlers.rsyncpath() else {
             throw RsyncError.executableNotFound
         }
@@ -94,10 +94,8 @@ public final class RsyncProcess {
             object: task
         )
         
-        self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
-        
         sequenceFileHandlerTask = Task {
-            
+            self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
             if self.getrsyncversion {
                 Logger.process.info("ProcessHandlers: sequenceFileHandlerTask getting rsync version")
             } else if self.handlers.rsyncversion3 {
