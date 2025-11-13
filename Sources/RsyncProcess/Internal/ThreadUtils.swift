@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension Thread {
+internal extension Thread {
     static var isMain: Bool { isMainThread }
     static var currentThread: Thread { Thread.current }
 }
