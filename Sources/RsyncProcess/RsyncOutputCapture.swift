@@ -52,10 +52,7 @@ public actor RsyncOutputCapture {
     /// Capture a line of output
     public func captureLine(_ line: String) {
         guard isEnabled else { return }
-        
         outputLines.append(line)
-        Logger.process.info("Rsync: \(line)")
-        
         // Write to file if configured
         if let fileHandle = fileHandle {
             if let data = (line + "\n").data(using: .utf8) {
@@ -128,44 +125,3 @@ extension RsyncOutputCapture {
             }
         }
 }
-
-// MARK: - Usage Example
-
-/*
- 
- // 1. In your app startup or settings, enable capture:
- Task {
-     await RsyncOutputCapture.shared.enable()
-     // Or with file output:
-     // let logURL = FileManager.default.temporaryDirectory.appendingPathComponent("rsync-output.log")
-     // await RsyncOutputCapture.shared.enable(writeToFile: logURL)
- }
- 
- // 2. When creating ProcessHandlers anywhere in your app:
- let handlers = ProcessHandlers(
-     processtermination: { output, id in /* ... */ },
-     filehandler: { count in /* ... */ },
-     rsyncpath: { "/usr/bin/rsync" },
-     checklineforerror: { line in /* ... */ },
-     updateprocess: { process in /* ... */ },
-     propogateerror: { error in /* ... */ },
-     logger: { id, output in /* ... */ },
-     checkforerrorinrsyncoutput: true,
-     rsyncversion3: true,
-     environment: nil,
-     printlines: RsyncOutputCapture.shared.makePrintLinesClosure()
- )
- 
- // 3. Access captured output anywhere:
- Task {
-     let allLines = await RsyncOutputCapture.shared.getAllLines()
-     let recentLines = await RsyncOutputCapture.shared.getRecentLines(count: 100)
-     
-     // Clear when needed
-     await RsyncOutputCapture.shared.clear()
-     
-     // Disable capture
-     await RsyncOutputCapture.shared.disable()
- }
- 
- */
