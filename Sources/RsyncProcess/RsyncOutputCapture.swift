@@ -124,4 +124,8 @@ extension RsyncOutputCapture {
                 }
             }
         }
+    
+        public func isenabled() async -> Bool {
+            return isEnabled
+        }
 }

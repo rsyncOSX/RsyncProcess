@@ -107,7 +107,7 @@ struct RsyncProcessTests {
                 usefilehandler: false
             )
             
-            try process.executeProcess()
+            try await process.executeProcess()
             
             // Give process time to complete
             try await Task.sleep(nanoseconds: 2_000_000_000)
@@ -132,7 +132,7 @@ struct RsyncProcessTests {
             )
             
             // Execute the process which will generate real output
-            try process.executeProcess()
+            try await process.executeProcess()
             
             // Give process time to generate output and complete
             try await Task.sleep(nanoseconds: 2_000_000_000)
@@ -196,7 +196,7 @@ struct RsyncProcessTests {
                 usefilehandler: true
             )
             
-            try process.executeProcess()
+            try await process.executeProcess()
             
             // Wait for process to complete - the 50ms drain period is built into the process
             try await Task.sleep(nanoseconds: 3_000_000_000)

@@ -55,8 +55,10 @@ public final class RsyncProcess {
     var hiddenID: Int = -1
     // Summary starter of rsync
     private static let summaryStartMarker = "Number of files"
+    // Privat property to mark if real-time output is enabled or not
+    private var realtimeoutputenabled: Bool = false
 
-    public func executeProcess() throws {
+    public func executeProcess() async throws {
         guard let executablePath = handlers.rsyncpath() else {
             throw RsyncError.executableNotFound
         }
@@ -91,7 +93,9 @@ public final class RsyncProcess {
             named: Process.didTerminateNotification,
             object: task
         )
-
+        
+        self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
+        
         sequenceFileHandlerTask = Task {
             
             if self.getrsyncversion {
@@ -196,9 +200,12 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if let printlines = self.handlers.printlines  {
-                        printlines(line)
+                    if self.realtimeoutputenabled {
+                        if let printlines = self.handlers.printlines  {
+                            printlines(line)
+                        }
                     }
+                    
                 }
                 outHandle.waitForDataInBackgroundAndNotify()
             }
@@ -212,8 +219,10 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if let printlines = self.handlers.printlines  {
-                        printlines(line)
+                    if self.realtimeoutputenabled {
+                        if let printlines = self.handlers.printlines  {
+                            printlines(line)
+                        }
                     }
                     if self.handlers.checkforerrorinrsyncoutput,
                        self.errordiscovered == false {
@@ -242,8 +251,10 @@ extension RsyncProcess {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if let printlines = self.handlers.printlines  {
-                        printlines(line)
+                    if self.realtimeoutputenabled {
+                        if let printlines = self.handlers.printlines  {
+                            printlines(line)
+                        }
                     }
                     // realrun == true if arguments does not contain --dry-run parameter
                     if self.realrun, self.beginningofsummarizedstatus == false {
