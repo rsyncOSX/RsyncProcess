@@ -7,6 +7,7 @@
 
 import OSLog
 
-enum PackageLogger {
-    static let process = Logger(subsystem: "com.rsyncprocess", category: "process")
+extension Logger {
+    private static let subsystem = Bundle.main.bundleIdentifier!
+    static let process = Logger(subsystem: subsystem, category: "process")
 }

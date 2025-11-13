@@ -15,7 +15,6 @@ public actor RsyncOutputCapture {
     
     private var isEnabled: Bool = false
     private var outputLines: [String] = []
-    private let logger = Logger(subsystem: "com.rsyncprocess", category: "output")
     
     // Optional: File URL for writing output
     private var fileURL: URL?
@@ -27,6 +26,7 @@ public actor RsyncOutputCapture {
     
     /// Enable output capture
     public func enable(writeToFile: URL? = nil) {
+        Logger.process.info("RsyncOutputCapture: ENABLE capture - MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
         isEnabled = true
         fileURL = writeToFile
         
@@ -37,6 +37,7 @@ public actor RsyncOutputCapture {
     
     /// Disable output capture
     public func disable() {
+        Logger.process.info("RsyncOutputCapture: DISABLE capture - MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
         isEnabled = false
         closeFileOutput()
     }
@@ -53,7 +54,7 @@ public actor RsyncOutputCapture {
         guard isEnabled else { return }
         
         outputLines.append(line)
-        logger.debug("Rsync: \(line)")
+        Logger.process.info("Rsync: \(line)")
         
         // Write to file if configured
         if let fileHandle = fileHandle {
@@ -97,7 +98,7 @@ public actor RsyncOutputCapture {
                 try? fileHandle?.write(contentsOf: data)
             }
         } catch {
-            logger.error("Failed to open file for writing: \(error.localizedDescription)")
+            Logger.process.error("Failed to open file for writing: \(error.localizedDescription)")
         }
     }
     

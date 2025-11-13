@@ -7,8 +7,7 @@
 
 import Foundation
 
-enum ThreadUtils {
-    static var isMain: Bool {
-        Thread.isMainThread
-    }
+public extension Thread {
+    static var isMain: Bool { isMainThread }
+    static var currentThread: Thread { Thread.current }
 }
