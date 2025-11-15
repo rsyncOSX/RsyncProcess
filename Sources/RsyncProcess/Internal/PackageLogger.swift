@@ -21,7 +21,6 @@ internal extension Logger {
 
     nonisolated func debugtthreadonly(_ message: String) {
         #if DEBUG
-            debug("\(message)")
             if Thread.checkIsMainThread() {
                 debug("\(message) Running on main thread")
             } else {
