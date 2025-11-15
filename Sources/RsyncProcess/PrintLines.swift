@@ -9,7 +9,6 @@ import Foundation
 import Observation
 
 @Observable
-@MainActor
 public final class PrintLines {
     public static let shared = PrintLines()
 
