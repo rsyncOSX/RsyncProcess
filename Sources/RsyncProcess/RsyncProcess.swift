@@ -95,18 +95,13 @@ public final class RsyncProcess {
         
         sequenceFileHandlerTask = Task {
             self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
-            if Thread.checkIsMainThread() {
-                Logger.process.info("RsyncProcess: sequenceFileHandlerTask Running on main thread")
-            } else {
-                Logger.process.info("RsyncProcess: sequenceFileHandlerTask NOT on main thread, currently on \(Thread.current, privacy: .public)")
-            }
-
+            Logger.process.debugtthreadonly("RsyncProcess: sequenceFileHandlerTask")
             if self.getrsyncversion {
-                Logger.process.info("RsyncProcess: sequenceFileHandlerTask getting rsync version")
+                Logger.process.debugmesseageonly("RsyncProcess: sequenceFileHandlerTask getting rsync version")
             } else if self.handlers.rsyncversion3 {
-                Logger.process.info("RsyncProcess: sequenceFileHandlerTask ver 3.x rsync")
+                Logger.process.debugmesseageonly("RsyncProcess: sequenceFileHandlerTask ver 3.x rsync")
             } else if self.handlers.rsyncversion3 == false {
-                Logger.process.info("RsyncProcess: sequenceFileHandlerTask openrsync")
+                Logger.process.debugmesseageonly("RsyncProcess: sequenceFileHandlerTask openrsync")
             }
             
             for await _ in sequencefilehandler {
@@ -123,30 +118,25 @@ public final class RsyncProcess {
         }
 
         sequenceTerminationTask = Task {
-            if Thread.checkIsMainThread() {
-                Logger.process.info("RsyncProcess: sequenceTerminationTask Running on main thread")
-            } else {
-                Logger.process.info("RsyncProcess: sequenceTerminationTask NOT on main thread, currently on \(Thread.current, privacy: .public)")
-            }
-
+            Logger.process.debugtthreadonly("RsyncProcess: sequenceTerminationTask")
             for await _ in sequencetermination {
-                Logger.process.info("ProcessHandlers: Process terminated - starting potensial drain")
+                Logger.process.debugmesseageonly("ProcessHandlers: Process terminated - starting potensial drain")
                 sequenceFileHandlerTask?.cancel()
                 try? await Task.sleep(nanoseconds: 50_000_000)
                 var totalDrained = 0
                 while true {
                     let data: Data = pipe.fileHandleForReading.availableData
                     if data.isEmpty {
-                        Logger.process.info("ProcessHandlers: Drain complete - \(totalDrained) bytes total")
+                        Logger.process.debugmesseageonly("ProcessHandlers: Drain complete - \(totalDrained) bytes total")
                         break
                     }
 
                     totalDrained += data.count
-                    Logger.process.info("ProcessHandlers: Draining \(data.count) bytes")
+                    Logger.process.debugmesseageonly("ProcessHandlers: Draining \(data.count) bytes")
 
                     // IMPORTANT: Actually process the drained data
                     if let text = String(data: data, encoding: .utf8) {
-                        // PackageLogger.process.info("ProcessRsyncVer3x: Drained text: \(text)")
+                        // PackageLogger.process.debugmesseageonly("ProcessRsyncVer3x: Drained text: \(text)")
                         self.output.append(text)
                     }
                 }
@@ -165,8 +155,8 @@ public final class RsyncProcess {
             handlers.propogateerror(error)
         }
         if let launchPath = task.launchPath, let arguments = task.arguments {
-            Logger.process.info("ProcessHandlers: command - \(launchPath, privacy: .public)")
-            Logger.process.info("ProcessHandlers: arguments - \(arguments.joined(separator: "\n"), privacy: .public)")
+            Logger.process.debugmesseageonly("ProcessHandlers: command - \(launchPath))")
+            Logger.process.debugmesseageonly("ProcessHandlers: arguments - \(arguments.joined(separator: "\n")))")
         }
     }
 
@@ -197,7 +187,7 @@ public final class RsyncProcess {
     }
 
     deinit {
-        Logger.process.info("ProcessHandlers: DEINIT")
+        Logger.process.debugmesseageonly("ProcessHandlers: DEINIT")
     }
 }
 
@@ -269,7 +259,7 @@ extension RsyncProcess {
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
                             self.beginningofsummarizedstatus = true
-                            Logger.process.info("ProcessHandlers: datahandle() beginning of status reports discovered")
+                            Logger.process.debugmesseageonly("ProcessHandlers: datahandle() beginning of status reports discovered")
                         }
                     }
                     if self.handlers.checkforerrorinrsyncoutput,
@@ -308,11 +298,6 @@ extension RsyncProcess {
         sequenceTerminationTask?.cancel()
         // await sequenceFileHandlerTask?.value
         // await sequenceTerminationTask?.value
-        
-        if Thread.checkIsMainThread() {
-            Logger.process.info("ProcessHandlers: process = nil and termination discovered Running on main thread")
-        } else {
-            Logger.process.info("ProcessHandlers: process = nil and termination discovered NOT on main thread, currently on \(Thread.current, privacy: .public)")
-        }
+        Logger.process.debugtthreadonly("RsyncProcess: process = nil and termination discovered")
     }
 }
