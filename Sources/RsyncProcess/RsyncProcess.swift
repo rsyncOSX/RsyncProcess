@@ -97,10 +97,13 @@ public final class RsyncProcess {
             self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
             if self.getrsyncversion {
                 Logger.process.info("ProcessHandlers: sequenceFileHandlerTask getting rsync version")
+                Logger.process.info("ProcessHandlers: MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
             } else if self.handlers.rsyncversion3 {
                 Logger.process.info("ProcessHandlers: sequenceFileHandlerTask ver 3.x rsync")
+                Logger.process.info("ProcessHandlers: MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
             } else if self.handlers.rsyncversion3 == false {
                 Logger.process.info("ProcessHandlers: sequenceFileHandlerTask openrsync")
+                Logger.process.info("ProcessHandlers: MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
             }
             
             for await _ in sequencefilehandler {
@@ -119,6 +122,7 @@ public final class RsyncProcess {
         sequenceTerminationTask = Task {
             for await _ in sequencetermination {
                 Logger.process.info("ProcessHandlers: Process terminated - starting potensial drain")
+                Logger.process.info("ProcessHandlers: MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
                 sequenceFileHandlerTask?.cancel()
                 try? await Task.sleep(nanoseconds: 50_000_000)
                 var totalDrained = 0
