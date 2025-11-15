@@ -308,6 +308,11 @@ extension RsyncProcess {
         sequenceTerminationTask?.cancel()
         // await sequenceFileHandlerTask?.value
         // await sequenceTerminationTask?.value
-        Logger.process.info("ProcessHandlers: process = nil and termination discovered \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
+        
+        if Thread.checkIsMainThread() {
+            Logger.process.info("ProcessHandlers: process = nil and termination discovered")
+        } else {
+            Logger.process.info("ProcessHandlers: process = nil and termination discovered NOT on main thread, currently on \(Thread.current, privacy: .public)")
+        }
     }
 }
