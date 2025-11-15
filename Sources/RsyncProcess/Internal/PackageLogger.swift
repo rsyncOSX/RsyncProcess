@@ -8,6 +8,8 @@
 import OSLog
 
 internal extension Logger {
-    private static let subsystem = Bundle.main.bundleIdentifier!
-    static let process = Logger(subsystem: subsystem, category: "process")
+    nonisolated static let process = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "unknown",
+        category: "process"
+    )
 }

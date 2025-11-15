@@ -8,6 +8,6 @@
 import Foundation
 
 internal extension Thread {
-    static var isMain: Bool { isMainThread }
-    static var currentThread: Thread { Thread.current }
+    nonisolated  static var isMain: Bool { isMainThread }
+    nonisolated  static var currentThread: Thread { Thread.current }
 }
