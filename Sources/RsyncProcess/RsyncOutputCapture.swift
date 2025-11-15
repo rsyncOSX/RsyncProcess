@@ -26,7 +26,11 @@ public actor RsyncOutputCapture {
     
     /// Enable output capture
     public func enable(writeToFile: URL? = nil) {
-        Logger.process.info("RsyncOutputCapture: ENABLE() capture - MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
+        if Thread.checkIsMainThread() {
+            Logger.process.info("RsyncOutputCapture: ENABLE() capture - Running on main thread")
+        } else {
+            Logger.process.info("RsyncOutputCapture: ENABLE() capture - NOT on main thread, currently on \(Thread.current, privacy: .public)")
+        }
         isEnabled = true
         fileURL = writeToFile
         
@@ -37,7 +41,11 @@ public actor RsyncOutputCapture {
     
     /// Disable output capture
     public func disable() {
-        Logger.process.info("RsyncOutputCapture: DISABLE() capture - MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
+        if Thread.checkIsMainThread() {
+            Logger.process.info("RsyncOutputCapture: DISABLE() capture - Running on main thread")
+        } else {
+            Logger.process.info("RsyncOutputCapture: DISABLE() capture - NOT on main thread, currently on \(Thread.current, privacy: .public)")
+        }
         isEnabled = false
         closeFileOutput()
     }

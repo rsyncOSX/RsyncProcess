@@ -95,14 +95,18 @@ public final class RsyncProcess {
         
         sequenceFileHandlerTask = Task {
             self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
-            Logger.process.info("ProcessHandlers: MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
+            if Thread.checkIsMainThread() {
+                Logger.process.info("RsyncProcess: sequenceFileHandlerTask Running on main thread")
+            } else {
+                Logger.process.info("RsyncProcess: sequenceFileHandlerTask NOT on main thread, currently on \(Thread.current, privacy: .public)")
+            }
 
             if self.getrsyncversion {
-                Logger.process.info("ProcessHandlers: sequenceFileHandlerTask getting rsync version")
+                Logger.process.info("RsyncProcess: sequenceFileHandlerTask getting rsync version")
             } else if self.handlers.rsyncversion3 {
-                Logger.process.info("ProcessHandlers: sequenceFileHandlerTask ver 3.x rsync")
+                Logger.process.info("RsyncProcess: sequenceFileHandlerTask ver 3.x rsync")
             } else if self.handlers.rsyncversion3 == false {
-                Logger.process.info("ProcessHandlers: sequenceFileHandlerTask openrsync")
+                Logger.process.info("RsyncProcess: sequenceFileHandlerTask openrsync")
             }
             
             for await _ in sequencefilehandler {
@@ -119,7 +123,11 @@ public final class RsyncProcess {
         }
 
         sequenceTerminationTask = Task {
-            Logger.process.info("ProcessHandlers: MAIN THREAD: \(Thread.isMain, privacy: .public) but on \(Thread.current, privacy: .public)")
+            if Thread.checkIsMainThread() {
+                Logger.process.info("RsyncProcess: sequenceTerminationTask Running on main thread")
+            } else {
+                Logger.process.info("RsyncProcess: sequenceTerminationTask NOT on main thread, currently on \(Thread.current, privacy: .public)")
+            }
 
             for await _ in sequencetermination {
                 Logger.process.info("ProcessHandlers: Process terminated - starting potensial drain")
