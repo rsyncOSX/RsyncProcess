@@ -96,13 +96,6 @@ public final class RsyncProcess {
         sequenceFileHandlerTask = Task {
             self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
             Logger.process.debugtthreadonly("RsyncProcess: sequenceFileHandlerTask")
-            if self.getrsyncversion {
-                Logger.process.debugmesseageonly("RsyncProcess: sequenceFileHandlerTask getting rsync version")
-            } else if self.handlers.rsyncversion3 {
-                Logger.process.debugmesseageonly("RsyncProcess: sequenceFileHandlerTask ver 3.x rsync")
-            } else if self.handlers.rsyncversion3 == false {
-                Logger.process.debugmesseageonly("RsyncProcess: sequenceFileHandlerTask openrsync")
-            }
             
             for await _ in sequencefilehandler {
                 if self.getrsyncversion == true {
@@ -120,19 +113,19 @@ public final class RsyncProcess {
         sequenceTerminationTask = Task {
             Logger.process.debugtthreadonly("RsyncProcess: sequenceTerminationTask")
             for await _ in sequencetermination {
-                Logger.process.debugmesseageonly("ProcessHandlers: Process terminated - starting potensial drain")
+                Logger.process.debugmesseageonly("RsyncProcess: Process terminated - starting potensial drain")
                 sequenceFileHandlerTask?.cancel()
                 try? await Task.sleep(nanoseconds: 50_000_000)
                 var totalDrained = 0
                 while true {
                     let data: Data = pipe.fileHandleForReading.availableData
                     if data.isEmpty {
-                        Logger.process.debugmesseageonly("ProcessHandlers: Drain complete - \(totalDrained) bytes total")
+                        Logger.process.debugmesseageonly("RsyncProcess: Drain complete - \(totalDrained) bytes total")
                         break
                     }
 
                     totalDrained += data.count
-                    Logger.process.debugmesseageonly("ProcessHandlers: Draining \(data.count) bytes")
+                    Logger.process.debugmesseageonly("RsyncProcess: Draining \(data.count) bytes")
 
                     // IMPORTANT: Actually process the drained data
                     if let text = String(data: data, encoding: .utf8) {
@@ -154,10 +147,12 @@ public final class RsyncProcess {
             // SharedReference.shared.errorobject?.alert(error: error)
             handlers.propogateerror(error)
         }
+        /*
         if let launchPath = task.launchPath, let arguments = task.arguments {
             Logger.process.debugmesseageonly("ProcessHandlers: command - \(launchPath))")
             Logger.process.debugmesseageonly("ProcessHandlers: arguments - \(arguments.joined(separator: "\n")))")
         }
+         */
     }
 
     public init(arguments: [String]?,
@@ -187,7 +182,7 @@ public final class RsyncProcess {
     }
 
     deinit {
-        Logger.process.debugmesseageonly("ProcessHandlers: DEINIT")
+        Logger.process.debugmesseageonly("RsyncProcess: DEINIT")
     }
 }
 
@@ -259,7 +254,7 @@ extension RsyncProcess {
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
                             self.beginningofsummarizedstatus = true
-                            Logger.process.debugmesseageonly("ProcessHandlers: datahandle() beginning of status reports discovered")
+                            Logger.process.debugmesseageonly("RsyncProcess: datahandle() beginning of status reports discovered")
                         }
                     }
                     if self.handlers.checkforerrorinrsyncoutput,
@@ -298,6 +293,6 @@ extension RsyncProcess {
         sequenceTerminationTask?.cancel()
         // await sequenceFileHandlerTask?.value
         // await sequenceTerminationTask?.value
-        Logger.process.debugtthreadonly("RsyncProcess: process = nil and termination discovered")
+        Logger.process.debugmesseageonly("RsyncProcess: process = nil and termination discovered")
     }
 }
