@@ -1,5 +1,7 @@
 ## Hi there 👋
 
+Version 2.0.0
+
 This package is code for monitoring the rsync process in RsyncUI.
 
 The package is used in [RsyncUI](https://github.com/rsyncOSX/RsyncUI).
