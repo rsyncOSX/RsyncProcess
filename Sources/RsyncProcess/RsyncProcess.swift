@@ -147,12 +147,10 @@ public final class RsyncProcess {
             // SharedReference.shared.errorobject?.alert(error: error)
             handlers.propogateerror(error)
         }
-        /*
         if let launchPath = task.launchPath, let arguments = task.arguments {
             Logger.process.debugmesseageonly("ProcessHandlers: command - \(launchPath))")
             Logger.process.debugmesseageonly("ProcessHandlers: arguments - \(arguments.joined(separator: "\n")))")
         }
-         */
     }
 
     public init(arguments: [String]?,
