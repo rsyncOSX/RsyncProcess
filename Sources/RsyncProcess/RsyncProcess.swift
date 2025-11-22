@@ -96,7 +96,6 @@ public final class RsyncProcess {
         sequenceFileHandlerTask = Task {
             self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
             Logger.process.debugtthreadonly("RsyncProcess: sequenceFileHandlerTask")
-            
             for await _ in sequencefilehandler {
                 if self.getrsyncversion == true {
                     await self.datahandlersyncversion(pipe)
@@ -148,8 +147,8 @@ public final class RsyncProcess {
             handlers.propogateerror(error)
         }
         if let launchPath = task.launchPath, let arguments = task.arguments {
-            Logger.process.debugmesseageonly("ProcessHandlers: command - \(launchPath))")
-            Logger.process.debugmesseageonly("ProcessHandlers: arguments - \(arguments.joined(separator: "\n")))")
+            Logger.process.debugmesseageonly("RsyncProcess: command - \(launchPath))")
+            Logger.process.debugmesseageonly("RsyncProcess: arguments - \(arguments.joined(separator: "\n")))")
         }
     }
 
