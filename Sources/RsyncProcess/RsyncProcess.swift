@@ -148,8 +148,8 @@ public final class RsyncProcess {
             handlers.propogateerror(error)
         }
         if let launchPath = task.launchPath, let arguments = task.arguments {
-            Logger.process.debugmesseageonly("RsyncProcess: command - \(launchPath)")
-            Logger.process.debugmesseageonly("RsyncProcess: arguments - \(arguments.joined(separator: "\n"))")
+            Logger.process.debugmesseageonly("RsyncProcess: COMMAND - \(launchPath)")
+            Logger.process.debugmesseageonly("RsyncProcess: ARGUMENTS - \(arguments.joined(separator: "\n"))")
         }
     }
 
