@@ -25,8 +25,10 @@ let package = Package(
         )
     ]
 )
+/*
+let strictConcurrencyTargets = ["RsyncUI"]
 
-for target in package.targets {
+for target in package.targets where strictConcurrencyTargets.contains(target.name) {
   var settings = target.swiftSettings ?? []
   settings.append(contentsOf: [
     .defaultIsolation(MainActor.self),
@@ -35,3 +37,4 @@ for target in package.targets {
   ])
   target.swiftSettings = settings
 }
+*/

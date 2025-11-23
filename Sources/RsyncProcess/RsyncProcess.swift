@@ -25,6 +25,7 @@ public enum RsyncError: LocalizedError {
 // Sources/RsyncProcess/ProcessRsyncVer3x.swift
 // ===================================
 
+@MainActor
 public final class RsyncProcess {
     // Process handlers
     public private(set) var handlers: ProcessHandlers

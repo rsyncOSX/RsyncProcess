@@ -229,28 +229,3 @@ extension MockRsyncError: LocalizedError {
     }
 }
 
-/*
-  import Foundation
-  import SwiftUI
-  import Observation
-
-  @Observable @MainActor
-  final class PrintLines {
-      
-      var output = [RsyncOutputData]()
-      
-      func printlines(_ line: String) -> Void {
-          output.append(RsyncOutputData(record: line))
-          print(output.count)
-      }
-      
-      init(output: [RsyncOutputData] = [RsyncOutputData]()) {
-          self.output = output
-      }
-      
-      deinit {
-          print("PrintLines deinit")
-      }
-  }
-
- */

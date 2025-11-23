@@ -10,7 +10,7 @@ import Observation
 
 @Observable
 public final class PrintLines {
-    public static let shared = PrintLines()
+    @MainActor public static let shared = PrintLines()
 
     // Observable storage of output lines
     public var output: [String] = []
