@@ -289,8 +289,8 @@ extension RsyncProcess {
         // Cancel Tasks
         sequenceFileHandlerTask?.cancel()
         sequenceTerminationTask?.cancel()
-        // await sequenceFileHandlerTask?.value
-        // await sequenceTerminationTask?.value
+        sequenceFileHandlerTask = nil
+        sequenceTerminationTask = nil
         Logger.process.debugmesseageonly("RsyncProcess: process = nil and termination discovered")
     }
 }
