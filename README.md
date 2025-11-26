@@ -22,16 +22,6 @@ A Swift package for executing and monitoring rsync processes with real-time outp
 - macOS 13.0+ / iOS 16.0+
 - Rsync binary installed on the system
 
-## Installation
-
-Add this package to your project using Swift Package Manager:
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/yourusername/RsyncProcess.git", from: "1.0.0")
-]
-```
-
 ## Usage
 
 ### Basic Example
