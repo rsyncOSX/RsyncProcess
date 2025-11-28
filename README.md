@@ -206,3 +206,7 @@ await RsyncOutputCapture.shared.enable(writeToFile: logURL)
 ## License
 
 MIT
+
+## Author
+
+Thomas Evensen
