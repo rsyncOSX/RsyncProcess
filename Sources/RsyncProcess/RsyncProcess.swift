@@ -111,19 +111,18 @@ public final class RsyncProcess {
 
         sequenceTerminationTask = Task {
             for await _ in sequencetermination {
-                Logger.process.debugmesseageonly("RsyncProcess: Process terminated - starting potensial drain")
                 sequenceFileHandlerTask?.cancel()
                 try? await Task.sleep(nanoseconds: 50_000_000)
                 var totalDrained = 0
                 while true {
                     let data: Data = pipe.fileHandleForReading.availableData
                     if data.isEmpty {
-                        Logger.process.debugmesseageonly("RsyncProcess: Drain complete - \(totalDrained) bytes total")
+                        Logger.process.debugmessageonly("RsyncProcess: Drain complete - \(totalDrained) bytes total")
                         break
                     }
 
                     totalDrained += data.count
-                    Logger.process.debugmesseageonly("RsyncProcess: Draining \(data.count) bytes")
+                    Logger.process.debugmessageonly("RsyncProcess: Draining \(data.count) bytes")
 
                     // IMPORTANT: Actually process the drained data
                     if let text = String(data: data, encoding: .utf8) {
@@ -145,8 +144,8 @@ public final class RsyncProcess {
             handlers.propogateerror(error)
         }
         if let launchPath = task.launchPath, let arguments = task.arguments {
-            Logger.process.debugmesseageonly("RsyncProcess: COMMAND - \(launchPath)")
-            Logger.process.debugmesseageonly("RsyncProcess: ARGUMENTS - \(arguments.joined(separator: "\n"))")
+            Logger.process.debugmessageonly("RsyncProcess: COMMAND - \(launchPath)")
+            Logger.process.debugmessageonly("RsyncProcess: ARGUMENTS - \(arguments.joined(separator: "\n"))")
         }
     }
 
@@ -177,7 +176,7 @@ public final class RsyncProcess {
     }
 
     deinit {
-        Logger.process.debugmesseageonly("RsyncProcess: DEINIT")
+        Logger.process.debugmessageonly("RsyncProcess: DEINIT")
     }
 }
 
@@ -273,7 +272,7 @@ extension RsyncProcess {
     }
 
     func termination() async {
-        Logger.process.debugmesseageonly("RsyncProcess: process = nil and termination discovered")
+        Logger.process.debugmessageonly("RsyncProcess: process = nil and termination discovered")
         handlers.processtermination(output, hiddenID)
         // Log error in rsync output to file
          if errordiscovered {

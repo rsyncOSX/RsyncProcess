@@ -165,7 +165,7 @@ struct RsyncProcessTests {
                     state.mockOutput = output
                     state.mockHiddenID = id
                     terminationOutputCount = output?.count ?? 0
-                    Logger.process.debugmesseageonly("Termination called with \(terminationOutputCount) lines")
+                    Logger.process.debugmessageonly("Termination called with \(terminationOutputCount) lines")
                 },
                 filehandler: { count in
                     dataHandledCount = count
@@ -213,7 +213,7 @@ struct RsyncProcessTests {
             let outputString = state.mockOutput?.joined(separator: " ").lowercased() ?? ""
             #expect(outputString.contains("rsync") || outputString.contains("usage") || outputString.contains("options"))
             
-            Logger.process.debugmesseageonly("Test complete - Data handled during execution: \(dataHandledCount), Data at termination: \(terminationOutputCount)")
+            Logger.process.debugmessageonly("Test complete - Data handled during execution: \(dataHandledCount), Data at termination: \(terminationOutputCount)")
         }
 }
 
