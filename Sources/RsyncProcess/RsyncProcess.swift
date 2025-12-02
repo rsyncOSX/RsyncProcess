@@ -96,7 +96,6 @@ public final class RsyncProcess {
         
         sequenceFileHandlerTask = Task {
             self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
-            Logger.process.debugtthreadonly("RsyncProcess: sequenceFileHandlerTask")
             for await _ in sequencefilehandler {
                 if self.getrsyncversion == true {
                     await self.datahandlersyncversion(pipe)
@@ -111,7 +110,6 @@ public final class RsyncProcess {
         }
 
         sequenceTerminationTask = Task {
-            Logger.process.debugtthreadonly("RsyncProcess: sequenceTerminationTask")
             for await _ in sequencetermination {
                 Logger.process.debugmesseageonly("RsyncProcess: Process terminated - starting potensial drain")
                 sequenceFileHandlerTask?.cancel()
@@ -129,7 +127,6 @@ public final class RsyncProcess {
 
                     // IMPORTANT: Actually process the drained data
                     if let text = String(data: data, encoding: .utf8) {
-                        // PackageLogger.process.debugmesseageonly("ProcessRsyncVer3x: Drained text: \(text)")
                         self.output.append(text)
                     }
                 }
@@ -252,7 +249,6 @@ extension RsyncProcess {
                     if self.realrun, self.beginningofsummarizedstatus == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
                             self.beginningofsummarizedstatus = true
-                            Logger.process.debugmesseageonly("RsyncProcess: datahandle() beginning of status reports discovered")
                         }
                     }
                     if self.handlers.checkforerrorinrsyncoutput,
@@ -277,6 +273,7 @@ extension RsyncProcess {
     }
 
     func termination() async {
+        Logger.process.debugmesseageonly("RsyncProcess: process = nil and termination discovered")
         handlers.processtermination(output, hiddenID)
         // Log error in rsync output to file
          if errordiscovered {
@@ -291,6 +288,5 @@ extension RsyncProcess {
         sequenceTerminationTask?.cancel()
         sequenceFileHandlerTask = nil
         sequenceTerminationTask = nil
-        Logger.process.debugmesseageonly("RsyncProcess: process = nil and termination discovered")
     }
 }
