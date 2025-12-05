@@ -19,7 +19,7 @@ public final class PrintLines {
     public func printlines(_ line: String) {
         output.append(line)
     }
-    
+
     /// Clear captured output
     public func clear() {
         output.removeAll()

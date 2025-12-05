@@ -59,9 +59,9 @@ public struct ProcessHandlers {
     }
 }
 
-extension ProcessHandlers {
+public extension ProcessHandlers {
     /// Create ProcessHandlers with automatic output capture enabled
-    public static func withOutputCapture(
+    static func withOutputCapture(
         processtermination: @escaping ([String]?, Int?) -> Void,
         filehandler: @escaping (Int) -> Void,
         rsyncpath: @escaping () -> String?,
@@ -73,7 +73,7 @@ extension ProcessHandlers {
         rsyncversion3: Bool,
         environment: [String: String]?
     ) -> ProcessHandlers {
-        return ProcessHandlers(
+        ProcessHandlers(
             processtermination: processtermination,
             filehandler: filehandler,
             rsyncpath: rsyncpath,

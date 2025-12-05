@@ -7,12 +7,12 @@
 
 import OSLog
 
-internal extension Logger {
+extension Logger {
     nonisolated static let process = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "unknown",
         category: "process"
     )
-    
+
     nonisolated func debugmessageonly(_ message: String) {
         #if DEBUG
             debug("\(message)")

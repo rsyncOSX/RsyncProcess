@@ -74,9 +74,9 @@ public final class RsyncProcess {
 
         // If there are any Environmentvariables like
         // SSH_AUTH_SOCK": "/Users/user/.gnupg/S.gpg-agent.ssh"
-         if let environment = handlers.environment {
-             task.environment = environment
-         }
+        if let environment = handlers.environment {
+            task.environment = environment
+        }
         // Pipe for reading output from Process
         let pipe = Pipe()
         task.standardOutput = pipe
@@ -93,9 +93,9 @@ public final class RsyncProcess {
             named: Process.didTerminateNotification,
             object: task
         )
-        
+
         sequenceFileHandlerTask = Task {
-            self.realtimeoutputenabled =  await RsyncOutputCapture.shared.isenabled()
+            self.realtimeoutputenabled = await RsyncOutputCapture.shared.isenabled()
             for await _ in sequencefilehandler {
                 if self.getrsyncversion == true {
                     await self.datahandlersyncversion(pipe)
@@ -189,11 +189,10 @@ extension RsyncProcess {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if self.realtimeoutputenabled {
-                        if let printlines = self.handlers.printlines  {
+                        if let printlines = self.handlers.printlines {
                             printlines(line)
                         }
                     }
-                    
                 }
                 outHandle.waitForDataInBackgroundAndNotify()
             }
@@ -208,7 +207,7 @@ extension RsyncProcess {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if self.realtimeoutputenabled {
-                        if let printlines = self.handlers.printlines  {
+                        if let printlines = self.handlers.printlines {
                             printlines(line)
                         }
                     }
@@ -240,7 +239,7 @@ extension RsyncProcess {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
                     if self.realtimeoutputenabled {
-                        if let printlines = self.handlers.printlines  {
+                        if let printlines = self.handlers.printlines {
                             printlines(line)
                         }
                     }
@@ -275,11 +274,11 @@ extension RsyncProcess {
         Logger.process.debugmessageonly("RsyncProcess: process = nil and termination discovered")
         handlers.processtermination(output, hiddenID)
         // Log error in rsync output to file
-         if errordiscovered {
-             Task {
+        if errordiscovered {
+            Task {
                 await handlers.logger(String(hiddenID), output)
-             }
-         }
+            }
+        }
         // Set current process to nil
         handlers.updateprocess(nil)
         // Cancel Tasks

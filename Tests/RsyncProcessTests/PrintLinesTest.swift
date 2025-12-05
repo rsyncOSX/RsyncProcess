@@ -5,14 +5,14 @@
 //  Created by Thomas Evensen on 12/11/2025.
 //
 
-import Testing
 import Foundation
 @testable import RsyncProcess
+import Testing
 
 @Suite("PrintLines Tests", .serialized)
 struct PrintLinesTests {
     @Test("PrintLines receives lines via closure")
-    func testPrintLinesObservable() async {
+    func printLinesObservable() async {
         let capture = RsyncOutputCapture.shared
 
         // Ensure a clean state
