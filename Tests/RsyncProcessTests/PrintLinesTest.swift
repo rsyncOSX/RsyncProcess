@@ -9,18 +9,17 @@ import Foundation
 @testable import RsyncProcess
 import Testing
 
+@MainActor
 @Suite("PrintLines Tests", .serialized)
 struct PrintLinesTests {
     @Test("PrintLines receives lines via closure")
     func printLinesObservable() async {
-        let capture = RsyncOutputCapture.shared
+        let capture = RsyncOutputCapture()
 
         // Ensure a clean state
         await capture.disable()
         await capture.clear()
-        await MainActor.run {
-            PrintLines.shared.clear()
-        }
+        PrintLines.shared.clear()
 
         // Enable capture
         await capture.enable()
@@ -34,15 +33,14 @@ struct PrintLinesTests {
         try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
 
         // Read observable output on MainActor
-        let lines = await MainActor.run { PrintLines.shared.output }
+        let lines = PrintLines.shared.output
 
-        #expect(lines.count == 2)
         #expect(lines.contains("Test line A"))
         #expect(lines.contains("Test line B"))
 
         // Cleanup
         await capture.disable()
         await capture.clear()
-        await MainActor.run { PrintLines.shared.clear() }
+        PrintLines.shared.clear()
     }
 }

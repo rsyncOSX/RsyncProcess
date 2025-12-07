@@ -19,7 +19,7 @@ extension Logger {
         #endif
     }
 
-    nonisolated func debugtthreadonly(_ message: String) {
+    nonisolated func debugThreadOnly(_ message: String) {
         #if DEBUG
             if Thread.checkIsMainThread() {
                 debug("\(message) Running on main thread")

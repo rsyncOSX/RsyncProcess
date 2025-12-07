@@ -34,32 +34,32 @@ public final class RsyncProcess {
     // Output
     public private(set) var output = [String]()
     // Use filehandler
-    var usefilehandler: Bool = false
+    var useFileHandler: Bool = false
     // Check for error
-    var errordiscovered: Bool = false
+    var errorDiscovered: Bool = false
     // Tasks
     var sequenceFileHandlerTask: Task<Void, Never>?
     var sequenceTerminationTask: Task<Void, Never>?
     // The real run
     // Used to not report the last status from rsync for more precise progress report
     // the not reported lines are appended to output though for logging statistics reporting
-    var realrun: Bool = false
+    var isRealRun: Bool = false
     // The beginning of summarized status is discovered
     // rsync = "Number of files" at start of last line nr 16
     // openrsync = "Number of files" at start of last line nr 14
-    var beginningofsummarizedstatus: Bool = false
+    var hasSeenSummaryStart: Bool = false
     // When RsyncUI starts or version of rsync is changed
     // the arguments is only one and contains ["--version"] only
-    var getrsyncversion: Bool = false
+    var isVersionProbe: Bool = false
     // hiddenID
     var hiddenID: Int = -1
     // Summary starter of rsync
     private static let summaryStartMarker = "Number of files"
     // Privat property to mark if real-time output is enabled or not
-    private var realtimeoutputenabled: Bool = false
+    private var isRealtimeOutputEnabled: Bool = false
 
     public func executeProcess() throws {
-        guard let executablePath = handlers.rsyncpath() else {
+        guard let executablePath = handlers.rsyncPath() else {
             throw RsyncError.executableNotFound
         }
 
@@ -95,15 +95,15 @@ public final class RsyncProcess {
         )
 
         sequenceFileHandlerTask = Task {
-            self.realtimeoutputenabled = await RsyncOutputCapture.shared.isenabled()
+            self.isRealtimeOutputEnabled = await RsyncOutputCapture.shared.isCapturing()
             for await _ in sequencefilehandler {
-                if self.getrsyncversion == true {
-                    await self.datahandlersyncversion(pipe)
+                if self.isVersionProbe == true {
+                    await self.handleVersionData(pipe)
                 } else {
-                    if self.handlers.rsyncversion3 == true {
-                        await self.datahandlever3x(pipe)
+                    if self.handlers.rsyncVersion3 == true {
+                        await self.handleRsync3Data(pipe)
                     } else {
-                        await self.datahandleopenrsync(pipe)
+                        await self.handleOpenRsyncData(pipe)
                     }
                 }
             }
@@ -134,14 +134,14 @@ public final class RsyncProcess {
             }
         }
         // Update current process task
-        handlers.updateprocess(task)
+        handlers.updateProcess(task)
 
         do {
             try task.run()
         } catch let e {
             let error = e
             // SharedReference.shared.errorobject?.alert(error: error)
-            handlers.propogateerror(error)
+            handlers.propagateError(error)
         }
         if let launchPath = task.launchPath, let arguments = task.arguments {
             Logger.process.debugmessageonly("RsyncProcess: COMMAND - \(launchPath)")
@@ -152,27 +152,27 @@ public final class RsyncProcess {
     public init(arguments: [String]?,
                 hiddenID: Int,
                 handlers: ProcessHandlers,
-                usefilehandler: Bool) {
+                useFileHandler: Bool) {
         self.arguments = arguments
         self.hiddenID = hiddenID
         self.handlers = handlers
-        self.usefilehandler = usefilehandler
+        self.useFileHandler = useFileHandler
 
-        let argumentscontainsdryrun = arguments?.contains("--dry-run") ?? false
-        realrun = !argumentscontainsdryrun
+        let argumentsContainDryRun = arguments?.contains("--dry-run") ?? false
+        isRealRun = !argumentsContainDryRun
 
         if arguments?.count == 1 {
-            getrsyncversion = arguments?.contains("--version") ?? false
+            isVersionProbe = arguments?.contains("--version") ?? false
         }
     }
 
     public convenience init(arguments: [String]?,
                             handlers: ProcessHandlers,
-                            filehandler: Bool) {
+                            fileHandler: Bool) {
         self.init(arguments: arguments,
                   hiddenID: -1,
                   handlers: handlers,
-                  usefilehandler: filehandler)
+                  useFileHandler: fileHandler)
     }
 
     deinit {
@@ -181,16 +181,16 @@ public final class RsyncProcess {
 }
 
 extension RsyncProcess {
-    func datahandlersyncversion(_ pipe: Pipe) async {
+    func handleVersionData(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
         if data.count > 0 {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if self.realtimeoutputenabled {
-                        if let printlines = self.handlers.printlines {
-                            printlines(line)
+                    if self.isRealtimeOutputEnabled {
+                        if let printLine = self.handlers.printLine {
+                            printLine(line)
                         }
                     }
                 }
@@ -199,71 +199,71 @@ extension RsyncProcess {
         }
     }
 
-    func datahandleopenrsync(_ pipe: Pipe) async {
+    func handleOpenRsyncData(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
         if data.count > 0 {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if self.realtimeoutputenabled {
-                        if let printlines = self.handlers.printlines {
-                            printlines(line)
+                    if self.isRealtimeOutputEnabled {
+                        if let printLine = self.handlers.printLine {
+                            printLine(line)
                         }
                     }
-                    if self.handlers.checkforerrorinrsyncoutput,
-                       self.errordiscovered == false {
+                    if self.handlers.checkForErrorInRsyncOutput,
+                       self.errorDiscovered == false {
                         do {
-                            try self.handlers.checklineforerror(line)
+                            try self.handlers.checkLineForError(line)
                         } catch let e {
-                            self.errordiscovered = true
+                            self.errorDiscovered = true
                             let error = e
-                            self.handlers.propogateerror(error)
+                            self.handlers.propagateError(error)
                         }
                     }
                 }
                 // Send message about files
-                if usefilehandler {
-                    handlers.filehandler(output.count)
+                if useFileHandler {
+                    handlers.fileHandler(output.count)
                 }
             }
             outHandle.waitForDataInBackgroundAndNotify()
         }
     }
 
-    func datahandlever3x(_ pipe: Pipe) async {
+    func handleRsync3Data(_ pipe: Pipe) async {
         let outHandle = pipe.fileHandleForReading
         let data = outHandle.availableData
         if data.count > 0 {
             if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                 str.enumerateLines { line, _ in
                     self.output.append(line)
-                    if self.realtimeoutputenabled {
-                        if let printlines = self.handlers.printlines {
-                            printlines(line)
+                    if self.isRealtimeOutputEnabled {
+                        if let printLine = self.handlers.printLine {
+                            printLine(line)
                         }
                     }
-                    // realrun == true if arguments does not contain --dry-run parameter
-                    if self.realrun, self.beginningofsummarizedstatus == false {
+                    // isRealRun == true if arguments do not contain --dry-run parameter
+                    if self.isRealRun, self.hasSeenSummaryStart == false {
                         if line.contains(RsyncProcess.summaryStartMarker) {
-                            self.beginningofsummarizedstatus = true
+                            self.hasSeenSummaryStart = true
                         }
                     }
-                    if self.handlers.checkforerrorinrsyncoutput,
-                       self.errordiscovered == false {
+                    if self.handlers.checkForErrorInRsyncOutput,
+                       self.errorDiscovered == false {
                         do {
-                            try self.handlers.checklineforerror(line)
+                            try self.handlers.checkLineForError(line)
                         } catch let e {
-                            self.errordiscovered = true
+                            self.errorDiscovered = true
                             let error = e
-                            self.handlers.propogateerror(error)
+                            self.handlers.propagateError(error)
                         }
                     }
                 }
                 // Send message about files, do not report the last lines of status from rsync if
                 // the real run is ongoing
-                if usefilehandler, beginningofsummarizedstatus == false, realrun == true {
-                    handlers.filehandler(output.count)
+                if useFileHandler, hasSeenSummaryStart == false, isRealRun == true {
+                    handlers.fileHandler(output.count)
                 }
             }
             outHandle.waitForDataInBackgroundAndNotify()
@@ -272,15 +272,15 @@ extension RsyncProcess {
 
     func termination() async {
         Logger.process.debugmessageonly("RsyncProcess: process = nil and termination discovered")
-        handlers.processtermination(output, hiddenID)
+        handlers.processTermination(output, hiddenID)
         // Log error in rsync output to file
-        if errordiscovered {
+        if errorDiscovered {
             Task {
                 await handlers.logger(String(hiddenID), output)
             }
         }
         // Set current process to nil
-        handlers.updateprocess(nil)
+        handlers.updateProcess(nil)
         // Cancel Tasks
         sequenceFileHandlerTask?.cancel()
         sequenceTerminationTask?.cancel()

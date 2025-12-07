@@ -10,81 +10,81 @@ import Foundation
 /// Handlers for process execution callbacks
 public struct ProcessHandlers {
     /// Called when process terminates with output and hiddenID
-    public var processtermination: ([String]?, Int?) -> Void
+    public var processTermination: ([String]?, Int?) -> Void
     /// Called during file processing with count
-    public var filehandler: (Int) -> Void
+    public var fileHandler: (Int) -> Void
     /// Returns the path to rsync executable
-    public var rsyncpath: () -> String?
+    public var rsyncPath: () -> String?
     /// Checks a line for errors and throws if found
-    public var checklineforerror: (String) throws -> Void
+    public var checkLineForError: (String) throws -> Void
     /// Updates the current process reference
-    public var updateprocess: (Process?) -> Void
+    public var updateProcess: (Process?) -> Void
     /// Propagates errors to error handler
-    public var propogateerror: (Error) -> Void
+    public var propagateError: (Error) -> Void
     // Async logger
     public var logger: (String, [String]) async -> Void
     /// Flag to enable/disable error checking in rsync output
-    public var checkforerrorinrsyncoutput: Bool
+    public var checkForErrorInRsyncOutput: Bool
     /// Flag for version 3.x of rsync or not
-    public var rsyncversion3: Bool = false
+    public var rsyncVersion3: Bool = false
     /// Environment data for rsync
     public var environment: [String: String]?
-    /// Print lines i datahandler
-    public var printlines: ((String) -> Void)?
+    /// Print lines in data handler
+    public var printLine: ((String) -> Void)?
     /// Initialize ProcessHandlers with all required closures
     public init(
-        processtermination: @escaping ([String]?, Int?) -> Void,
-        filehandler: @escaping (Int) -> Void,
-        rsyncpath: @escaping () -> String?,
-        checklineforerror: @escaping (String) throws -> Void,
-        updateprocess: @escaping (Process?) -> Void,
-        propogateerror: @escaping (Error) -> Void,
+        processTermination: @escaping ([String]?, Int?) -> Void,
+        fileHandler: @escaping (Int) -> Void,
+        rsyncPath: @escaping () -> String?,
+        checkLineForError: @escaping (String) throws -> Void,
+        updateProcess: @escaping (Process?) -> Void,
+        propagateError: @escaping (Error) -> Void,
         logger: @escaping (String, [String]) async -> Void,
-        checkforerrorinrsyncoutput: Bool,
-        rsyncversion3: Bool,
+        checkForErrorInRsyncOutput: Bool,
+        rsyncVersion3: Bool,
         environment: [String: String]?,
-        printlines: ((String) -> Void)? = nil
+        printLine: ((String) -> Void)? = nil
     ) {
-        self.processtermination = processtermination
-        self.filehandler = filehandler
-        self.rsyncpath = rsyncpath
-        self.checklineforerror = checklineforerror
-        self.updateprocess = updateprocess
-        self.propogateerror = propogateerror
+        self.processTermination = processTermination
+        self.fileHandler = fileHandler
+        self.rsyncPath = rsyncPath
+        self.checkLineForError = checkLineForError
+        self.updateProcess = updateProcess
+        self.propagateError = propagateError
         self.logger = logger
-        self.checkforerrorinrsyncoutput = checkforerrorinrsyncoutput
-        self.rsyncversion3 = rsyncversion3
+        self.checkForErrorInRsyncOutput = checkForErrorInRsyncOutput
+        self.rsyncVersion3 = rsyncVersion3
         self.environment = environment
-        self.printlines = printlines
+        self.printLine = printLine
     }
 }
 
 public extension ProcessHandlers {
     /// Create ProcessHandlers with automatic output capture enabled
     static func withOutputCapture(
-        processtermination: @escaping ([String]?, Int?) -> Void,
-        filehandler: @escaping (Int) -> Void,
-        rsyncpath: @escaping () -> String?,
-        checklineforerror: @escaping (String) throws -> Void,
-        updateprocess: @escaping (Process?) -> Void,
-        propogateerror: @escaping (Error) -> Void,
+        processTermination: @escaping ([String]?, Int?) -> Void,
+        fileHandler: @escaping (Int) -> Void,
+        rsyncPath: @escaping () -> String?,
+        checkLineForError: @escaping (String) throws -> Void,
+        updateProcess: @escaping (Process?) -> Void,
+        propagateError: @escaping (Error) -> Void,
         logger: @escaping (String, [String]) async -> Void,
-        checkforerrorinrsyncoutput: Bool,
-        rsyncversion3: Bool,
+        checkForErrorInRsyncOutput: Bool,
+        rsyncVersion3: Bool,
         environment: [String: String]?
     ) -> ProcessHandlers {
         ProcessHandlers(
-            processtermination: processtermination,
-            filehandler: filehandler,
-            rsyncpath: rsyncpath,
-            checklineforerror: checklineforerror,
-            updateprocess: updateprocess,
-            propogateerror: propogateerror,
+            processTermination: processTermination,
+            fileHandler: fileHandler,
+            rsyncPath: rsyncPath,
+            checkLineForError: checkLineForError,
+            updateProcess: updateProcess,
+            propagateError: propagateError,
             logger: logger,
-            checkforerrorinrsyncoutput: checkforerrorinrsyncoutput,
-            rsyncversion3: rsyncversion3,
+            checkForErrorInRsyncOutput: checkForErrorInRsyncOutput,
+            rsyncVersion3: rsyncVersion3,
             environment: environment,
-            printlines: RsyncOutputCapture.shared.makePrintLinesClosure()
+            printLine: RsyncOutputCapture.shared.makePrintLinesClosure()
         )
     }
 }

@@ -19,13 +19,13 @@ public actor RsyncOutputCapture {
     private var fileURL: URL?
     private var fileHandle: FileHandle?
 
-    private init() {}
+    init() {}
 
     // MARK: - Configuration
 
     /// Enable output capture
     public func enable(writeToFile: URL? = nil) {
-        Logger.process.debugtthreadonly("RsyncOutputCapture: ENABLE() capture")
+        Logger.process.debugThreadOnly("RsyncOutputCapture: ENABLE() capture")
         isEnabled = true
         fileURL = writeToFile
 
@@ -36,7 +36,7 @@ public actor RsyncOutputCapture {
 
     /// Disable output capture
     public func disable() {
-        Logger.process.debugtthreadonly("RsyncOutputCapture: DISABLE() capture")
+        Logger.process.debugThreadOnly("RsyncOutputCapture: DISABLE() capture")
         isEnabled = false
         closeFileOutput()
     }
@@ -114,7 +114,7 @@ public extension RsyncOutputCapture {
         { line in
             // Update UI-observable model on MainActor (non-blocking)
             Task { @MainActor in
-                PrintLines.shared.printlines(line)
+                PrintLines.shared.appendLine(line)
             }
 
             // Also keep capturing in the actor's internal storage (async)
@@ -122,9 +122,5 @@ public extension RsyncOutputCapture {
                 await self.captureLine(line)
             }
         }
-    }
-
-    func isenabled() async -> Bool {
-        isEnabled
     }
 }

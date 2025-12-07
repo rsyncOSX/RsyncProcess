@@ -31,29 +31,29 @@ import RsyncProcess
 
 // Create process handlers
 let handlers = ProcessHandlers(
-    processtermination: { output, hiddenID in
+    processTermination: { output, hiddenID in
         print("Process completed with \(output?.count ?? 0) lines")
     },
-    filehandler: { count in
+    fileHandler: { count in
         print("Processed \(count) files")
     },
-    rsyncpath: { "/usr/bin/rsync" },
-    checklineforerror: { line in
+    rsyncPath: { "/usr/bin/rsync" },
+    checkLineForError: { line in
         if line.contains("error") {
             throw NSError(domain: "rsync", code: 1)
         }
     },
-    updateprocess: { process in
+    updateProcess: { process in
         // Store or update process reference
     },
-    propogateerror: { error in
+    propagateError: { error in
         print("Error: \(error)")
     },
     logger: { id, output in
         // Log output asynchronously
     },
-    checkforerrorinrsyncoutput: true,
-    rsyncversion3: true,
+    checkForErrorInRsyncOutput: true,
+    rsyncVersion3: true,
     environment: nil
 )
 
@@ -61,7 +61,7 @@ let handlers = ProcessHandlers(
 let rsyncProcess = RsyncProcess(
     arguments: ["-av", "/source/", "/destination/"],
     handlers: handlers,
-    filehandler: true
+    fileHandler: true
 )
 
 try await rsyncProcess.executeProcess()
@@ -75,17 +75,17 @@ await RsyncOutputCapture.shared.enable()
 
 // Create handlers with automatic output capture
 let handlers = ProcessHandlers.withOutputCapture(
-    processtermination: { output, hiddenID in
+    processTermination: { output, hiddenID in
         print("Completed")
     },
-    filehandler: { count in },
-    rsyncpath: { "/usr/bin/rsync" },
-    checklineforerror: { _ in },
-    updateprocess: { _ in },
-    propogateerror: { error in },
+    fileHandler: { count in },
+    rsyncPath: { "/usr/bin/rsync" },
+    checkLineForError: { _ in },
+    updateProcess: { _ in },
+    propagateError: { error in },
     logger: { _, _ in },
-    checkforerrorinrsyncoutput: true,
-    rsyncversion3: true,
+    checkForErrorInRsyncOutput: true,
+    rsyncVersion3: true,
     environment: nil
 )
 
@@ -93,7 +93,7 @@ let handlers = ProcessHandlers.withOutputCapture(
 let rsyncProcess = RsyncProcess(
     arguments: ["-av", "/source/", "/destination/"],
     handlers: handlers,
-    filehandler: true
+    fileHandler: true
 )
 
 try await rsyncProcess.executeProcess()

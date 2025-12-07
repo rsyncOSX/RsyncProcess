@@ -50,7 +50,7 @@ struct RsyncProcessTests {
             loggedOutput = nil
         }
 
-        func printline(_ line: String) {
+        func printLine(_ line: String) {
             print(line)
         }
     }
@@ -66,30 +66,30 @@ struct RsyncProcessTests {
         state: TestState
     ) -> ProcessHandlers {
         ProcessHandlers(
-            processtermination: { output, hiddenID in
+            processTermination: { output, hiddenID in
                 state.mockOutput = output
                 state.mockHiddenID = hiddenID
             },
-            filehandler: { count in
+            fileHandler: { count in
                 state.fileHandlerCount = count
             },
-            rsyncpath: { rsyncPath },
-            checklineforerror: { line in
+            rsyncPath: { rsyncPath },
+            checkLineForError: { line in
                 if shouldThrowError, line.contains("error") {
                     throw NSError(domain: "TestError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Mock error"])
                 }
             },
-            updateprocess: { _ in
+            updateProcess: { _ in
                 state.processUpdateCalled = true
             },
-            propogateerror: { error in
+            propagateError: { error in
                 state.errorPropagated = error
             },
             logger: { command, output in
                 _ = await ActorToFile(command, output)
             },
-            checkforerrorinrsyncoutput: checkForError,
-            rsyncversion3: rsyncVersion3,
+            checkForErrorInRsyncOutput: checkForError,
+            rsyncVersion3: rsyncVersion3,
             environment: nil
         )
     }
@@ -104,7 +104,7 @@ struct RsyncProcessTests {
             arguments: ["--version"],
             hiddenID: 123,
             handlers: handlers,
-            usefilehandler: false
+            useFileHandler: false
         )
 
         try process.executeProcess()
@@ -121,14 +121,14 @@ struct RsyncProcessTests {
     func processTerminationWithPendingData() async throws {
         let state = TestState()
         var handlers = createMockHandlers(state: state)
-        handlers.printlines = state.printline(_:)
+        handlers.printLine = state.printLine(_:)
         let hiddenID = 1
 
         let process = RsyncProcess(
             arguments: ["--version"],
             hiddenID: hiddenID,
             handlers: handlers,
-            usefilehandler: false
+            useFileHandler: false
         )
 
         // Execute the process which will generate real output
@@ -161,29 +161,29 @@ struct RsyncProcessTests {
 
         // Create handlers that track data handling vs termination
         let handlers = ProcessHandlers(
-            processtermination: { output, id in
+            processTermination: { output, id in
                 state.mockOutput = output
                 state.mockHiddenID = id
                 terminationOutputCount = output?.count ?? 0
                 Logger.process.debugmessageonly("Termination called with \(terminationOutputCount) lines")
             },
-            filehandler: { count in
+            fileHandler: { count in
                 dataHandledCount = count
                 state.fileHandlerCount = count
             },
-            rsyncpath: { "/usr/bin/rsync" },
-            checklineforerror: { _ in },
-            updateprocess: { _ in
+            rsyncPath: { "/usr/bin/rsync" },
+            checkLineForError: { _ in },
+            updateProcess: { _ in
                 state.processUpdateCalled = true
             },
-            propogateerror: { error in
+            propagateError: { error in
                 state.errorPropagated = error
             },
             logger: { command, output in
                 _ = await ActorToFile(command, output)
             },
-            checkforerrorinrsyncoutput: false,
-            rsyncversion3: false,
+            checkForErrorInRsyncOutput: false,
+            rsyncVersion3: false,
             environment: nil
         )
 
@@ -193,7 +193,7 @@ struct RsyncProcessTests {
             arguments: ["--help"], // Generates multi-line output
             hiddenID: hiddenID,
             handlers: handlers,
-            usefilehandler: true
+            useFileHandler: true
         )
 
         try process.executeProcess()

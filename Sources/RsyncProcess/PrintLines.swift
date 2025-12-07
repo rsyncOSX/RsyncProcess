@@ -16,7 +16,7 @@ public final class PrintLines {
     public var output: [String] = []
 
     // The single function you asked to make observable
-    public func printlines(_ line: String) {
+    public func appendLine(_ line: String) {
         output.append(line)
     }
 
