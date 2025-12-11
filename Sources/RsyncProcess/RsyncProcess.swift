@@ -81,7 +81,7 @@ public final class RsyncProcess {
         let pipe = Pipe()
         task.standardOutput = pipe
         task.standardError = pipe
-        
+
         let outHandle = pipe.fileHandleForReading
         outHandle.waitForDataInBackgroundAndNotify()
 
