@@ -81,8 +81,30 @@ public final class RsyncProcess {
         let pipe = Pipe()
         task.standardOutput = pipe
         task.standardError = pipe
+        
         let outHandle = pipe.fileHandleForReading
         outHandle.waitForDataInBackgroundAndNotify()
+
+        setupAsyncTasks(pipe, task)
+        handlers.updateProcess(task)
+
+        do {
+            try task.run()
+        } catch let e {
+            let error = e
+            // SharedReference.shared.errorobject?.alert(error: error)
+            handlers.propagateError(error)
+        }
+        if let launchPath = task.launchPath, let arguments = task.arguments {
+            Logger.process.debugmessageonly("RsyncProcess: COMMAND - \(launchPath)")
+            Logger.process.debugmessageonly("RsyncProcess: ARGUMENTS - \(arguments.joined(separator: "\n"))")
+        }
+    }
+
+    // MARK: - Private Methods
+
+    private func setupAsyncTasks(_ pipe: Pipe, _ task: Process) {
+        let outHandle = pipe.fileHandleForReading
 
         // AsyncSequence
         let sequencefilehandler = NotificationCenter.default.notifications(
@@ -132,20 +154,6 @@ public final class RsyncProcess {
 
                 await self.termination()
             }
-        }
-        // Update current process task
-        handlers.updateProcess(task)
-
-        do {
-            try task.run()
-        } catch let e {
-            let error = e
-            // SharedReference.shared.errorobject?.alert(error: error)
-            handlers.propagateError(error)
-        }
-        if let launchPath = task.launchPath, let arguments = task.arguments {
-            Logger.process.debugmessageonly("RsyncProcess: COMMAND - \(launchPath)")
-            Logger.process.debugmessageonly("RsyncProcess: ARGUMENTS - \(arguments.joined(separator: "\n"))")
         }
     }
 
