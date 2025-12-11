@@ -94,7 +94,8 @@ public final class RsyncProcess {
             object: task
         )
 
-        sequenceFileHandlerTask = Task {
+        sequenceFileHandlerTask = Task { [weak self] in
+            guard let self else { return }
             self.isRealtimeOutputEnabled = await RsyncOutputCapture.shared.isCapturing()
             for await _ in sequencefilehandler {
                 if self.isVersionProbe == true {
@@ -109,8 +110,9 @@ public final class RsyncProcess {
             }
         }
 
-        sequenceTerminationTask = Task {
+        sequenceTerminationTask = Task { [weak self] in
             for await _ in sequencetermination {
+                guard let self else { return }
                 sequenceFileHandlerTask?.cancel()
                 try? await Task.sleep(nanoseconds: 50_000_000)
                 var totalDrained = 0
