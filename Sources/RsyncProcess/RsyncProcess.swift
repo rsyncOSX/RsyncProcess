@@ -116,7 +116,8 @@ public final class RsyncProcess {
             object: task
         )
 
-        sequenceFileHandlerTask = Task {
+        sequenceFileHandlerTask = Task { [weak self] in
+            guard let self = self else { return }
             self.isRealtimeOutputEnabled = await RsyncOutputCapture.shared.isCapturing()
             for await _ in sequencefilehandler {
                 if self.isVersionProbe == true {
