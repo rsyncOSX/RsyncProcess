@@ -4,7 +4,7 @@
 //
 //  Created by Thomas Evensen on 12/11/2025.
 //
-
+// swiftlint:disable function_parameter_count
 import Foundation
 
 /// Handlers for process execution callbacks
@@ -88,3 +88,4 @@ public extension ProcessHandlers {
         )
     }
 }
+// swiftlint:enable function_parameter_count

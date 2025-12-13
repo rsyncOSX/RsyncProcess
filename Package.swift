@@ -1,6 +1,6 @@
 // swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swiftlint:disable trailing_comma
 import PackageDescription
 
 let package = Package(
@@ -25,16 +25,4 @@ let package = Package(
         ),
     ]
 )
-/*
- let strictConcurrencyTargets = ["RsyncUI"]
-
- for target in package.targets where strictConcurrencyTargets.contains(target.name) {
-   var settings = target.swiftSettings ?? []
-   settings.append(contentsOf: [
-     .defaultIsolation(MainActor.self),
-     .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-     .enableUpcomingFeature("InferIsolatedConformances")
-   ])
-   target.swiftSettings = settings
- }
- */
+// swiftlint:enable trailing_comma

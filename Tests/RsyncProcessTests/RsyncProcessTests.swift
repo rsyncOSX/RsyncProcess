@@ -213,7 +213,9 @@ struct RsyncProcessTests {
         let outputString = state.mockOutput?.joined(separator: " ").lowercased() ?? ""
         #expect(outputString.contains("rsync") || outputString.contains("usage") || outputString.contains("options"))
 
-        Logger.process.debugmessageonly("Test complete - Data handled during execution: \(dataHandledCount), Data at termination: \(terminationOutputCount)")
+        let message = "Test complete - Data handled during execution: \(dataHandledCount), " +
+            "Data at termination: \(terminationOutputCount)"
+        Logger.process.debugmessageonly(message)
     }
 }
 

@@ -94,8 +94,8 @@ struct RsyncOutputCaptureTests {
             await capture.enable()
 
             // Add 10 lines
-            for i in 1 ... 10 {
-                await capture.captureLine("Line \(i)")
+            for idx in 1 ... 10 {
+                await capture.captureLine("Line \(idx)")
             }
 
             // Get last 3 lines

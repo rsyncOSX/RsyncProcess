@@ -90,8 +90,8 @@ public final class RsyncProcess {
 
         do {
             try task.run()
-        } catch let e {
-            let error = e
+        } catch let err {
+            let error = err
             // SharedReference.shared.errorobject?.alert(error: error)
             handlers.propagateError(error)
         }
@@ -223,9 +223,9 @@ extension RsyncProcess {
                        self.errorDiscovered == false {
                         do {
                             try self.handlers.checkLineForError(line)
-                        } catch let e {
+                        } catch let err {
                             self.errorDiscovered = true
-                            let error = e
+                            let error = err
                             self.handlers.propagateError(error)
                         }
                     }
@@ -261,9 +261,9 @@ extension RsyncProcess {
                        self.errorDiscovered == false {
                         do {
                             try self.handlers.checkLineForError(line)
-                        } catch let e {
+                        } catch let err {
                             self.errorDiscovered = true
-                            let error = e
+                            let error = err
                             self.handlers.propagateError(error)
                         }
                     }
